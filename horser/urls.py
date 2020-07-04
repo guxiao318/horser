@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include,url
+from horsequick.views import horser_index
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    url(r'^$', horser_index, name='horser_index'),
+    ]
