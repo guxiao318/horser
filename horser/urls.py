@@ -16,10 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include,url
-from horsequick.views import horser_index
+from horsequick.views import horser_index,horser_help,interface_add
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^$', horser_index, name='horser_index'),
+    url(r'^horser_help/$', horser_help, name='horser_help'),
+    url(r'^interface_add/$', interface_add, name='interface_add'),
+
     ]

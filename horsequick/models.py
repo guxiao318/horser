@@ -30,17 +30,19 @@ class User_Group_Relation(models.Model):
 class Interface_Info(models.Model):
     interface_name = models.CharField(max_length=20,verbose_name="接口名")
     interface_type = models.CharField(max_length=20,verbose_name="接口类型")
-    input_fileld_list = models.CharField(max_length=200,verbose_name="输入字段列表")
-    input_fileld_type_list = models.CharField(max_length=200,verbose_name="输入字段类型列表")
-    assert_filed_list = models.CharField(max_length=200,verbose_name="断言字段列表")
-    assert_filed_type_list = models.CharField(max_length=200,verbose_name="断言类型列表")
-    match_list = models.CharField(max_length=200,verbose_name="匹配内容列表")
-    assert_result_list = models.CharField(max_length=200,verbose_name="断言结果列表")
-    belong_subsys = models.CharField(max_length=20,verbose_name="所属子系统")
+    interface_url = models.CharField(max_length=150,verbose_name="接口url")
+    input_fileld_list = models.CharField(max_length=200,verbose_name="输入字段列表",null=True)
+    input_need_list = models.CharField(max_length=200,verbose_name="输入字段必需列表",null=True)
+    input_demo_list = models.CharField(max_length=200,verbose_name="输入字段实例列表",null=True)
+    assert_filed_list = models.CharField(max_length=200,verbose_name="断言字段列表",null=True)
+    match_list = models.CharField(max_length=200,verbose_name="匹配内容列表",null=True)
+    assert_result_list = models.CharField(max_length=200,verbose_name="断言结果列表",null=True)
+    belong_subsys = models.CharField(max_length=50,verbose_name="所属子系统")
+    belong_group = models.CharField(max_length=50,verbose_name="所属分类",null=True)
     belong_git_base = models.CharField(max_length=100,verbose_name="所属git代码库",blank=True)
     belong_svn_base = models.CharField(max_length=100, verbose_name="所属svn代码库",blank=True)
-    created_time = models.DateTimeField(verbose_name="创建时间",blank=True)
-    updated_time = models.DateTimeField(verbose_name="更新时间",blank=True)
+    created_time = models.DateTimeField(verbose_name="创建时间")
+    updated_time = models.DateTimeField(verbose_name="更新时间",null=True)
 
 
     class Meta:

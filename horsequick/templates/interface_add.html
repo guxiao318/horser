@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% extends 'horser_base.html' %}
+    {% block title %}horser--接口录入{% endblock %}
+    {% block headmessage %}
+    录入接口
+    {% endblock %}
+
+
+    {% block content %}
+         {% csrf_token %}
+
+        <div class="input-group"><span class="glyphicon glyphicon-pencil"></span><span style="font-size:130%">基本信息</span></div><br>
+        <div class="jumbotron" style="background-color: lavender">
+
+
+
+                <div class="form-inline">
+                        <label for="interface_name"><span style="color: red">*</span> 接口名：</label><input id="interface_name" name="interface_name" placeholder="输入接口名（必填）" class="form-control" style="width: 85%">
+                </div><br>
+
+                <div class="form-inline">
+
+                        <label for="interface_url"><span style="color: red">*</span>接口路径：</label>
+                        <select id="interface_type" name="interface_type" placeholder="选择接口类型（必填）" class="form-control" ><option>GET</option><option>POST</option>
+                        <option>PUT</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option><option>PATCH</option></select>
+                        <input id="interface_url" name="interface_url" type="text" class="form-control" style="width: 70%">
+
+                </div><br>
+
+                <div class="form-inline">
+                    <label><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" ><option>test001</option><option>test002</option></select>
+                </div><br>
+
+                <div class="form-inline">
+                    <label for="belong_group">所属分类：</label><select id="belong_group" name="belong_group" placeholder="选择分类" class="form-control" style="width: 85%" ><option></option><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
+                </div><br>
+
+
+
+                <div class="form-inline">
+                    <label>所属SVN库：</label><select id="belong_svn_base" name="belong_svn_base" placeholder="选择所属SVN库" class="form-control" style="width: 85%" ><option></option><option></option></select>
+                </div><br>
+
+                <div class="form-inline">
+                    <label>所属GIT库：</label><select id="belong_git_base" name="belong_git_base" placeholder="选择所属GIT库" class="form-control" style="width: 85%" ><option></option><option></option></select>
+                </div><br>
+
+
+        </div>
+
+        <div class="input-group"><span class="glyphicon glyphicon-pencil"></span><span style="font-size:130%">请求参数</span></div><br>
+        <div class="jumbotron" style="background-color: lavender">
+
+            <button class="btn btn-primary" id="add_input_field" onclick="add_input_field(this)">
+            添加入参</button><br>
+
+        <button type="button" class="btn btn-default" id="interface_add" style="float: right" onclick="interface_add()">提交</button>
+
+        </div>
+
+
+
+
+
+
+
+
+    {% endblock %}
+
+</html>

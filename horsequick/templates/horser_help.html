@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% extends 'horser_base.html' %}
+    {% block title %}horser--帮助{% endblock %}
+    {% block headmessage %}
+    帮助
+    {% endblock %}
+
+
+    {% block content %}
+        <div class="jumbotron">
+				<h3>
+					工具使用指南
+				</h3>
+				<p style="font-family: 宋体 ;font-size:130%;">
+                    step1：录入接口、子系统信息<br>
+                    step2：接口关联子系统、SVN/GIT库<br>
+                    step3：使用接口web测试做接口测试<br>
+                    step4：代码提交后自动触发接口自动化测试，查看接口自动化测试结果<br>
+				</p>
+
+			</div>
+    {% endblock %}
+
+</html>
