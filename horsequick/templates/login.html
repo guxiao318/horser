@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>horser-登录</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/static/js/horsergo.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="/static/css/horsergo.css">
+
+</head>
+
+<body class="login_background">
+<div class="container">
+    <div class="row">
+        <div class="col-md-5 col-lg-5 col-md-offset-3 col-lg-offset-3">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    登录
+                </div>
+            <div class="panel-body">
+                <form action="/horser_login/" method="post" role="form" class="bs-example bs-example-form col-lg-12">
+                    {% csrf_token %}
+                    <div class="form-inline">
+                        <label class="mylabel" for="interface_name"><span style="color: red">*</span> 用户名：</label><input id="interface_name" name="interface_name" placeholder="请输入用户名" class="form-control" style="width: 70%">
+                     </div><br>
+                    <div class="form-inline">
+                        <label class="mylabel" for="interface_name"><span style="color: red">*</span> 密码：</label><input id="interface_name" name="interface_name" placeholder="请输入密码" class="form-control" style="width: 70%">
+                    </div><br>
+                    <div class="form-inline">
+                        <label class="mylabel" for="interface_name"><span style="color: red">*</span> 还没账号？</label><a href="/register/" class="form-control">注册</a>
+                    </div><br>
+
+                    <button type="submit" id="login" class="btn btn-info btn-block">登录</button>
+
+                </form>
+            </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+</body>
+</html>

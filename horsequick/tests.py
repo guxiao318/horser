@@ -1,4 +1,4 @@
 from django.test import TestCase
 
 # Create your tests here.
-<span class="glyphicon glyphicon-plus"></span>
+belong_domain = models.ForeignKey(Domain_Info, on_delete=models.CASCADE, verbose_name="所属领域")

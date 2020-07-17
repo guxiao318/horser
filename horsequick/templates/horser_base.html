@@ -16,43 +16,109 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="row clearfix">
-            <div class="col-md-2 col-lg-2 siderbar">
-                <ul class="nav nav-siderbar">
-                    <li><a href="/interface_add">接口录入</a> </li>
-                    <li><a href="#interface_depot" data-toggle="collapse">接口仓库</a> </li>
-                        <div id="interface_depot" class="collapse in">
-                            <li><a href="#" class="list-group-item">test001</a></li>
-                            <li><a href="#" class="list-group-item">test002</a></li>
-
-
+        <div class="container">
+            <div class="row">
+                 <div class="col-md-2 col-lg-2">
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="/domain_manage/">
+                                        领域管理
+                                    </a>
+                                </h4>
+                            </div>
                         </div>
-                    <li><a href="#">子系统录入</a> </li>
-                    <li><a href="/horser_help">使用指南</a> </li>
-                    <li><a href="#">意见反馈</a> </li>
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="/horser_help">
+                                        使用指南
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion"
+                                       href="#collapseOne">
+                                        接口仓库<span class="pull-right glyphicon glyphicon-chevron-down"></span><span class="badge">50</span>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in">
+                                <div class="panel-body" style="text-align: left">
+                                    <a href="#interface_one" data-toggle="collapse" data-parent="collapseone">分类001</a><br>
+                                        <div id="interface_one" class="panel-collapse collapse in">
+                                            <div class="panel-body" style="text-align: center">
+                                                <a href="/interface_detail/1" >接口001</a><br>
+                                                <a href="/interface_detail/2" >接口002</a><br>
+                                                <a href="#" >接口003</a><br>
+                                            </div>
+                                        </div>
+                                    <a href="#">分类002</a><br>
+                                    <a href="#">分类003</a><br>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="/interface_add">
+                                        接口录入
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="/member_manage/">
+                                        成员管理
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a href="/#">
+                                        意见反馈
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+
+                 </div>
 
 
 
-                </ul>
-            </div>
-
-            <div class="col-md-10 col-lg-10">
-                <h4>{% block headmessage %}{% endblock %}</h4>
-                <ul class="nav nav-list"><li class="divider"></li></ul>
 
 
-                <div class="panel-body">
-                    {% block content %}{% endblock %}
+                <div class="col-md-10 col-lg-10">
+
+                        <div class="panel-heading">
+                            <h4>{% block headmessage %}{% endblock %}</h4>
+                        </div>
+
+
+                        <div class=" panel-body">
+                            {% block content %}{% endblock %}
+                        </div>
+
+
                 </div>
             </div>
 
-
-
-
         </div>
 
-    </div>
+
 
 
 </body>

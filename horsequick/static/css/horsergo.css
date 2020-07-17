@@ -1,13 +1,14 @@
-.block{
-        width: 600px;
-        display: block;
-        margin:5px 0;
-    }
-.center{
-        text-align: center;
-}
-label {
+.mylabel {
         display: inline-block;
         width: 100px;
         text-align: right;
 }
+
+.login_background{
+        width: auto;
+        height: auto;
+
+        background:cornflowerblue;
+        background-size:auto;
+}
+

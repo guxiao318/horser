@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% extends 'horser_base.html' %}
+    {% block title %}horser--领域管理{% endblock %}
+    {% block headmessage %}
+    领域管理
+    {% endblock %}
+
+
+    {% block content %}
+        <div class="tabbable" id="domain_switch">
+				<ul class="nav nav-tabs">
+					<li class="active">
+						 <a href="#domain_edit" data-toggle="tab">编辑</a>
+					</li>
+					<li>
+						 <a href="#domain_add" data-toggle="tab">新增</a>
+					</li>
+				</ul><br>
+
+
+				<div class="tab-content">
+                        <div class="tab-pane active" id="domain_edit">
+                        <p>bianji</p>
+                        </div>
+
+
+
+                        <div class="tab-pane" id="domain_add">
+
+                            <div class="form-inline">
+                                <label class="mylabel" for="domain_name"><span style="color: red">*</span> 领域名：</label><input id="domain_name" name="domain_name" placeholder="领域名（必填）" class="form-control" style="width: 85%">
+                            </div><br>
+
+                            <div class="form-inline">
+                                <label class="mylabel" for="domain_brief">领域简介：</label><textarea id="domain_brief" name="domain_brief" placeholder="领域简介（选填）" class="form-control" style="width: 85%"></textarea>
+                            </div><br>
+
+
+                            <button type="button" class="btn btn-default" id="domain_add" style="float: right" onclick="domain_add()">提交</button>
+                        </div>
+                </div>
+
+        </div>
+
+    {% endblock %}
+
+</html>

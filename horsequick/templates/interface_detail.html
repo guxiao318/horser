@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% extends 'horser_base.html' %}
+    {% block title %}horser--接口详情{% endblock %}
+    {% block headmessage %}
+
+    <ul class="breadcrumb">
+        <li><a href="/">horser</a></li>
+        <li><a href="/interface_depot/">接口仓库</a></li>
+        <li class="active">{{ r.interface_name }}</li>
+    </ul>
+
+    {% endblock %}
+    {% block content %}
+        {% csrf_token %}
+        <div class="tabbable" id="interface_detail_switch">
+				<ul class="nav nav-tabs">
+					<li class="active">
+						 <a href="#interface_detail_preview" data-toggle="tab">预览</a>
+					</li>
+					<li>
+						 <a href="#interface_detail_edit" data-toggle="tab">编辑</a>
+					</li>
+				</ul><br>
+
+
+				<div class="tab-content">
+					<div class="tab-pane active" id="interface_detail_preview">
+						<div class="row">
+                            <blockquote>
+                                <p>基本信息</p>
+                            </blockquote>
+                            <div class="col-md-offset-1">
+                                <ul class="list-inline ">
+                                    <li class="col-md-2 col-lg-2">
+                                        <label>接口名称：</label>
+                                    </li>
+                                    <li class="col-md-4 col-lg-4">
+                                        {{ r.interface_name}}
+                                    </li>
+                                    <li class="col-md-2 col-lg-2">
+                                        <label>创建人：</label>
+                                    </li>
+                                    <li class="col-md-4 col-lg-4">
+                                            {{ r.created_person}}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-offset-1">
+                                <ul class="list-inline">
+                                        <li class="col-md-2 col-lg-2">
+                                            <label>接口URL：</label>
+                                        </li>
+                                        <li class="col-md-10 col-lg-10">
+                                            {{r.interface_url}}
+                                        </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                            <div class="row">
+                                <div class="col-md-offset-1">
+                                    <ul class="list-inline">
+
+                                        <li class="col-md-2 col-lg-2">
+                                            <label>创建时间：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4">
+                                            {{r.created_time|date:"m-d H:i:s"|default_if_none:''}}
+                                        </li>
+                                        <li class="col-md-2 col-lg-2">
+                                            <label>更新时间：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4">
+                                            {{r.updated_time|date:"m-d H:i:s"|default_if_none:''}}
+                                        </li>
+                                    </ul>
+                                </div>
+                             </div>
+
+                            <div class="row">
+                                <div class="col-md-offset-1">
+                                    <ul class="list-inline">
+                                        <li class="col-md-2 col-lg-2">
+                                                <label>Mock：</label>
+                                        </li>
+                                        <li class="col-md-10 col-lg-10"><a href="{{r.interface_mock|default_if_none:''}}">{{r.interface_mock|default_if_none:''}}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div><br>
+
+
+
+
+
+                                <div class="row">
+                                    <blockquote>
+                                        <p>入参列表</p>
+                                    </blockquote>
+
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-2 col-lg-2">参数名称</th>
+                                                <th class="col-md-2 col-lg-2">是否必需</th>
+                                                <th class="col-md-8 col-lg-8">示例</th>
+
+                                            </tr>
+                                            {% for k,v in r_dict_return.items %}
+                                            <tr>
+                                                <td class="col-md-2 col-lg-2">{{v.parm}}</td>
+                                                <td class="col-md-2 col-lg-2">{{v.need}}</td>
+                                                <td class="col-md-8 col-lg-8">{{v.demo}}</td>
+                                            </tr>
+                                            {% endfor %}
+
+
+
+                                        </thead>
+
+                                    </table>
+                                </div>
+					</div>
+
+					<div class="tab-pane" id="interface_detail_edit">
+
+                        <div class="form-inline">
+                            <label class="mylabel" for="interface_name"><span style="color: red">*</span> 接口名：</label><input id="interface_name" name="interface_name" placeholder="输入接口名（必填）" class="form-control" style="width: 85%">
+                        </div><br>
+
+                        <div class="form-inline">
+
+                            <label class="mylabel" for="interface_url"><span style="color: red">*</span>接口路径：</label>
+                            <select id="interface_type" name="interface_type" placeholder="选择接口类型（必填）" class="form-control" ><option>GET</option><option>POST</option>
+                            <option>PUT</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option><option>PATCH</option></select>
+                            <input id="interface_url" name="interface_url" type="text" class="form-control" style="width: 70%">
+
+                        </div><br>
+
+                        <div class="form-inline">
+                            <label class="mylabel"><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" ><option>test001</option><option>test002</option></select>
+                        </div><br>
+
+
+
+                        <div class="form-inline">
+                            <label class="mylabel" for="belong_group">所属分类：</label><select id="belong_group" name="belong_group" placeholder="选择分类" class="form-control" style="width: 85%" ><option></option><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
+                        </div><br>
+
+
+
+                        <div class="form-inline">
+                            <label class="mylabel">所属SVN库：</label><select id="belong_svn_base" name="belong_svn_base" placeholder="选择所属SVN库" class="form-control" style="width: 85%" ><option></option><option></option></select>
+                        </div><br>
+
+                        <div class="form-inline">
+                            <label class="mylabel">所属GIT库：</label><select id="belong_git_base" name="belong_git_base" placeholder="选择所属GIT库" class="form-control" style="width: 85%" ><option></option><option></option></select>
+                        </div><br>
+
+                        <div class="form-inline">
+                            <label class="mylabel">mock：</label><input type="text" id="interface_mock" name="interface_mock" placeholder="mock" class="form-control" style="width: 85%" >
+                        </div><br>
+
+
+
+                        <blockquote>
+                                <p>入参设置</p>
+                            </blockquote>
+                        <div class="jumbotron" style="background-color: lavender">
+                            <div class="form-inline">
+			                    <input id="input_filed" name="interface_name" placeholder="参数名称" class="form-control params_input" value="hello">
+			                    <select id="interface_name" name="interface_name"  class="form-control params_need"><option>必需</option><option>非必需</option></select>
+			                    <textarea class="form-control params_demo" style="height:34px;width: 55%" placeholder="参数实例"></textarea><button>删除</button>
+                            </div>
+
+                            <button class="btn btn-primary" id="add_input_field" onclick="add_input_field(this)">
+                            添加入参</button><br>
+
+                            <button type="button" class="btn btn-default" id="interface_add" style="float: right" onclick="interface_add()">提交</button>
+
+                        </div>
+					</div>
+                </div>
+				</div>
+
+
+
+
+
+
+
+
+
+    {% endblock %}
+
+</html>
