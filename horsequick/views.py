@@ -2,44 +2,123 @@ from django.shortcuts import render,HttpResponse,redirect
 import json
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
-from .models import Interface_Info,Domain_Info
+from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relation
 from django.forms import model_to_dict
+from functools import wraps
 
 # Create your views here.
 
+def check_login(func):
+    @wraps(func)
+    def warpper(request,*args,**kwargs):
+
+        login_status =request.session.get('login_status',False)
+
+        if login_status:
+            user_name = request.session.get('user_name',False)
+            user_id = User_Info.objects.get(user_name=user_name).id
+
+            domain_first = Domain_Info.objects.get(id=1).domain_name  # 默认领域为通用领域
+            domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
+
+            domain_total_name_good =[]
+            for i in domain_total:
+                domain_total_name_good.append(i["belong_domain__domain_name"])
+
+            show = {"user_name": user_name,"domain_name":domain_first,"domain_total":domain_total_name_good}
+
+            group_list = Interface_Info.objects.filter(belong_domain=1).values("belong_group").distinct()  # 分类列表
+            group_list_good = []
+            back_dict = {}
+
+            for i in group_list:
+                group_list_good.append(i["belong_group"])  # 将分类转换为列表类型
+
+            for i in group_list_good:
+                interface_name_objects = Interface_Info.objects.filter(belong_group=i).values("interface_name", "id")
+                interface_name_list = []
+                for n in interface_name_objects:
+                    interface_name_list.append(n)
+                    back_dict[i] = interface_name_list  # 嵌套字典
+
+            show["interface_info"] = back_dict
+
+            return func(request, *args,**show)
+        else:
+            return redirect("/login/")
+    return warpper
+
+
+
+
+
+
+
+
+
+@csrf_exempt
 def horser_login(request):
     if request.method == "GET":
         html = "login.html"
         return render(request,html)
 
+    else:
+        receive_data = json.loads(request.body.decode())  # 将body从byte类型转码后用json的loads函数将json格式转为字典
+        user_name = receive_data['user_name']
+        password = receive_data['password']
+
+        try:
+            if user_name.strip() == "" or password.strip()=="":
+                raise Exception
+        except Exception:
+            resp = {'code':'000001','msg':'登录失败，用户名或密码不能为空！'}
+        else:
+            if User_Info.objects.filter(user_name=user_name).exists():
+                if password == User_Info.objects.get(user_name=user_name).password:
+                    resp = {'code': '000000', 'msg': '登录成功！'}
+                    request.session['user_name'] =user_name
+                    request.session['login_status'] = True
+                else:
+                    resp = {'code': '000002', 'msg': '登录失败，密码错误请重新输入！'}
+            else:
+                resp = {'code': '000003', 'msg': '登录失败，用户不存在请先注册！'}
+
+    return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
 
 
 
-def horser_index(request):
+@check_login
+def horser_index(request,**show):
+    global interface_name_objects
     if request.method == "GET":
 
 
         html = "horser_index.html"
+        back_dict = show["interface_info"]
 
-        return render(request,html)
+        return render(request,html,{"show":show,"back_dict":back_dict})
 
 
+@check_login
 def horser_help(request):
     if request.method == "GET":
         html = "horser_help.html"
 
         return render(request,html)
 
-
-def domain_manage(request):
+@check_login
+def domain_manage(request,**show):
     if request.method == "GET":
         html = "domain_manage.html"
 
-        return render(request,html)
+        back_dict = show["interface_info"]
+        return render(request,html,{"show":show,"back_dict":back_dict})
+
 
 @csrf_exempt
-def domain_add(request):
+@check_login
+def domain_add(request,**show):
     if request.method == "POST":
         receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
         domain_name = receive_data['domain_name']
@@ -116,7 +195,8 @@ def interface_add(request):
         return render(request,html)
 
 
-def interface_detail(request,jiekouId):
+@check_login
+def interface_detail(request,jiekouId,**show):
 
     try:
         r = Interface_Info.objects.get(id=jiekouId)
@@ -131,14 +211,14 @@ def interface_detail(request,jiekouId):
             for p,n,d,i in zip(input_field_list,input_need_list,input_demo_list,parm_id_list):
                 r_dict_return[i] = {"parm":p,"need":n,"demo":d,"num":i}
 
-
-
             html = 'interface_detail.html'
-            return render(request,html,{"r":r,"r_dict_return":r_dict_return})
+            back_dict = show["interface_info"]
+
+            return render(request,html,{"r":r,"r_dict_return":r_dict_return,"show":show,"back_dict":back_dict})
     except:
         return redirect("/")
 
-
+@check_login
 def interface_depot(request):
     if request.method == "GET":
         html = "interface_depot.html"

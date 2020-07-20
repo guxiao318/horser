@@ -15,26 +15,26 @@
 <div class="container">
     <div class="row">
         <div class="col-md-5 col-lg-5 col-md-offset-3 col-lg-offset-3">
-            <div class="panel panel-info">
+            <div class="panel panel-default">
                 <div class="panel-heading">
                     登录
                 </div>
             <div class="panel-body">
-                <form action="/horser_login/" method="post" role="form" class="bs-example bs-example-form col-lg-12">
+
                     {% csrf_token %}
                     <div class="form-inline">
-                        <label class="mylabel" for="interface_name"><span style="color: red">*</span> 用户名：</label><input id="interface_name" name="interface_name" placeholder="请输入用户名" class="form-control" style="width: 70%">
+                        <label class="mylabel" for="user_name"><span style="color: red">*</span> 用户名：</label><input id="user_name" name="user_name" placeholder="请输入用户名" class="form-control" style="width: 70%">
                      </div><br>
                     <div class="form-inline">
-                        <label class="mylabel" for="interface_name"><span style="color: red">*</span> 密码：</label><input id="interface_name" name="interface_name" placeholder="请输入密码" class="form-control" style="width: 70%">
+                        <label class="mylabel" for="password"><span style="color: red">*</span> 密码：</label><input  type="password" id="password" name="password" placeholder="请输入密码" class="form-control" style="width: 70%">
                     </div><br>
                     <div class="form-inline">
                         <label class="mylabel" for="interface_name"><span style="color: red">*</span> 还没账号？</label><a href="/register/" class="form-control">注册</a>
                     </div><br>
 
-                    <button type="submit" id="login" class="btn btn-info btn-block">登录</button>
+                    <button type="button" id="login" class="btn btn-info btn-block" onclick="horser_login()">登录</button>
 
-                </form>
+
             </div>
 
             </div>

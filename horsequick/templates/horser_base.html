@@ -44,23 +44,28 @@
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#accordion"
-                                       href="#collapseOne">
+                                       href="#collapse_one">
                                         接口仓库<span class="pull-right glyphicon glyphicon-chevron-down"></span><span class="badge">50</span>
                                     </a>
                                 </h4>
                             </div>
-                            <div id="collapseOne" class="panel-collapse collapse in">
+                            <div id="collapse_one" class="panel-collapse collapse in">
                                 <div class="panel-body" style="text-align: left">
-                                    <a href="#interface_one" data-toggle="collapse" data-parent="collapseone">分类001</a><br>
-                                        <div id="interface_one" class="panel-collapse collapse in">
-                                            <div class="panel-body" style="text-align: center">
-                                                <a href="/interface_detail/1" >接口001</a><br>
-                                                <a href="/interface_detail/2" >接口002</a><br>
-                                                <a href="#" >接口003</a><br>
+                                    {% for k,v in back_dict.items  %}
+                                    <a href="#interface_collapse_{{k}}" data-toggle="collapse" data-parent="collapse_one">{{k}}</a><br>
+
+                                        <div id="interface_collapse_{{k}}" class="panel-collapse collapse in">
+                                        {% for i in v %}
+                                            <div style="text-align: center">
+
+                                                <a href="/interface_detail/{{ i.id }}" >{{i.interface_name}}</a>
+
                                             </div>
+                                        {% endfor %}
                                         </div>
-                                    <a href="#">分类002</a><br>
-                                    <a href="#">分类003</a><br>
+
+                                    {% endfor %}
+
                                 </div>
 
                             </div>

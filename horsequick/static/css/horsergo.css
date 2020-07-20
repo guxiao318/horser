@@ -5,10 +5,17 @@
 }
 
 .login_background{
-        width: auto;
-        height: auto;
+        background: url("../images/horsergo.jpg");
 
-        background:cornflowerblue;
-        background-size:auto;
+        background-position: center 0;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        -webkit-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+
+        margin-top:15%;
+
 }
 

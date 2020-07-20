@@ -99,6 +99,44 @@ $.ajaxSetup({
 		});
 	}
 
+
+	function horser_login() {
+		var user_name = $("#user_name").val()
+		var password = $("#password").val()
+
+		$.ajax({
+
+			type: "post",
+			url: "/login/",
+			data: JSON.stringify({"user_name": user_name, "password": password}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code == "000000") {
+					alert(resp.msg);
+					window.location.href = "/"
+				} else if (resp.code == "000001") {
+					alert(resp.msg);
+				}
+				else if (resp.code == "000002") {
+					alert(resp.msg);
+				}
+				else {
+					alert(resp.msg);
+				}
+
+			},
+
+			error: function () {
+
+				alert("出错了");
+			}
+
+
+		});
+	}
+
     function add_input_field(obj) {
 
 
