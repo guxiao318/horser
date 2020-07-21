@@ -15,19 +15,22 @@ def check_login(func):
         login_status =request.session.get('login_status',False)
 
         if login_status:
-            user_name = request.session.get('user_name',False)
+            user_name = request.session.get('user_name',False)#从session中获取用户名
             user_id = User_Info.objects.get(user_name=user_name).id
+            domain_name = request.session.get('domain_name',False)#从session中获取领域名
+            domain_id = Domain_Info.objects.get(domain_name=domain_name).id
 
-            domain_first = Domain_Info.objects.get(id=1).domain_name  # 默认领域为通用领域
+
             domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
 
             domain_total_name_good =[]
             for i in domain_total:
                 domain_total_name_good.append(i["belong_domain__domain_name"])
 
-            show = {"user_name": user_name,"domain_name":domain_first,"domain_total":domain_total_name_good}
+            show = {"user_name": user_name,"domain_total":domain_total_name_good,"domain_name":domain_name,"domain_id":domain_id}
 
-            group_list = Interface_Info.objects.filter(belong_domain=1).values("belong_group").distinct()  # 分类列表
+
+            group_list = Interface_Info.objects.filter(belong_domain=domain_id).values("belong_group").distinct()  # 分类列表
             group_list_good = []
             back_dict = {}
 
@@ -47,10 +50,6 @@ def check_login(func):
         else:
             return redirect("/login/")
     return warpper
-
-
-
-
 
 
 
@@ -77,6 +76,7 @@ def horser_login(request):
                 if password == User_Info.objects.get(user_name=user_name).password:
                     resp = {'code': '000000', 'msg': '登录成功！'}
                     request.session['user_name'] =user_name
+                    request.session['domain_name']= "通用领域" #初始化默认通用领域
                     request.session['login_status'] = True
                 else:
                     resp = {'code': '000002', 'msg': '登录失败，密码错误请重新输入！'}
@@ -101,11 +101,13 @@ def horser_index(request,**show):
 
 
 @check_login
-def horser_help(request):
+def horser_help(request,**show):
     if request.method == "GET":
         html = "horser_help.html"
+        back_dict = show["interface_info"]
 
-        return render(request,html)
+
+        return render(request,html,{'show':show,"back_dict":back_dict})
 
 @check_login
 def domain_manage(request,**show):
@@ -141,9 +143,9 @@ def domain_add(request,**show):
 
 
 
-
+@check_login
 @csrf_exempt
-def interface_add(request):
+def interface_add(request,**show):
     if request.method == "POST":
         receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
 
@@ -182,6 +184,8 @@ def interface_add(request):
             else:#子系统下接口不存在则添加
                 created_time = datetime.now()
                 input_dict["created_time"] = created_time
+                input_dict["belong_domain_id"] = show["domain_id"] #添加的归属领域默认为当前领域
+                input_dict["created_person"] = show["user_name"] #添加的创建人为当前登录用户
                 Interface_Info.objects.create(**input_dict)
 
                 resp = {'code': '000000', 'msg': '添加成功'}
@@ -192,8 +196,9 @@ def interface_add(request):
 
     else:
         html = "interface_add.html"
-        return render(request,html)
+        back_dict = show["interface_info"]
 
+        return render(request, html, {'show': show, "back_dict": back_dict})
 
 @check_login
 def interface_detail(request,jiekouId,**show):
@@ -223,3 +228,17 @@ def interface_depot(request):
     if request.method == "GET":
         html = "interface_depot.html"
     return render(request,html)
+
+
+
+@csrf_exempt
+def select_domain(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        domain_name = receive_data['domain_name']
+        request.session['domain_name'] =domain_name #切换领域时，修改session的值
+        resp={'code':'000000'}
+
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+

@@ -153,3 +153,35 @@ $.ajaxSetup({
 
 
 	}
+
+
+	function select_domain(obj) {
+
+		var domain_name = $(obj).text();
+
+		$.ajax({
+			type: "post",
+			url: "/select_domain/",
+			data: JSON.stringify({"domain_name": domain_name}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code == "000000") {
+					window.location.href = "/"
+				} else if (resp.code == "000001") {
+					alert(resp.msg);
+				}
+				else if (resp.code == "000002") {
+					alert(resp.msg);
+				}
+				else {
+					alert(resp.msg);
+				}
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+	}

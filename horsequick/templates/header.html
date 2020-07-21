@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <div class="container">
         <div class="row clearfix">
                 <nav class="navbar navbar-default" role="navigation">
@@ -47,12 +48,12 @@
                         </form>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ show.domain_name }}<strong class="caret"></strong></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{show.domain_name}}<strong class="caret"></strong></a>
 
                                 <ul class="dropdown-menu">
                                     {% for i in show.domain_total %}
                                     <li>
-                                         <a type="button" onclick="">{{ i }}</a>
+                                        <a domain-name="{{i}}" onclick="select_domain(this)" >{{ i }}</a>
                                     </li>
                                     {% endfor %}
 

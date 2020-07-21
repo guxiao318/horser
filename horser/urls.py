@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include,url
-from horsequick.views import horser_index,horser_help,interface_add,interface_detail,interface_depot,domain_manage,domain_add,horser_login
+from horsequick.views import horser_index,horser_help,interface_add,interface_detail,\
+    interface_depot,domain_manage,domain_add,horser_login,select_domain
 
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
     url(r'^domain_add/$', domain_add, name='domain_add'),
     url(r'^interface_depot/$', interface_depot, name='interface_depot'),
     url(r'^domain_manage/$', domain_manage, name='domain_manage'),
+    url(r'^select_domain/$', select_domain, name='select_domain'),
     url(r'^interface_detail/(\w+)$', interface_detail, name='interface_detail'),
 
     ]
