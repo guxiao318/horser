@@ -10,6 +10,20 @@ class Domain_Info(models.Model):
         verbose_name = "领域表"
         ordering = ['-id']
 
+
+class Sub_Sys_Info (models.Model):
+    sub_sys_name = models.CharField(max_length=50,verbose_name="子系统名称")
+    belong_domain = models.ForeignKey(Domain_Info, on_delete=models.CASCADE, verbose_name="所属领域")
+    svn_address = models.CharField(max_length=100,verbose_name="子系统SVN地址")
+    git_address = models.CharField(max_length=100, verbose_name="子系统GIT地址")
+
+    class Meta:
+        verbose_name = "子系统信息表"
+        ordering = ['-id']
+
+
+
+
 class User_Group_Info(models.Model):
     group_name = models.CharField(max_length=50, verbose_name="组名")
     group_brief= models.CharField(max_length=50,verbose_name="组简介",null=True)
@@ -38,6 +52,13 @@ class User_Domain_Group_Relation(models.Model):
         ordering = ['-id']
 
 
+class Category_Info (models.Model):
+    category_name = models.CharField(max_length=50,verbose_name="分类名称")
+    belong_domain = models.ForeignKey(Domain_Info, on_delete=models.CASCADE, verbose_name="所属领域")
+
+    class Meta:
+        verbose_name = "接口类别表"
+        ordering = ['-id']
 
 
 class Interface_Info(models.Model):
@@ -53,7 +74,7 @@ class Interface_Info(models.Model):
     assert_result_list = models.CharField(max_length=200,verbose_name="断言结果列表",null=True)
     belong_subsys = models.CharField(max_length=50,verbose_name="所属子系统")
     belong_domain = models.ForeignKey(Domain_Info, on_delete=models.CASCADE, verbose_name="所属领域")
-    belong_group = models.CharField(max_length=50,verbose_name="所属分类",null=True)
+    belong_category = models.ForeignKey(Category_Info, on_delete=models.CASCADE, verbose_name="所属类别")
     belong_git_base = models.CharField(max_length=100,verbose_name="所属git代码库",blank=True)
     belong_svn_base = models.CharField(max_length=100, verbose_name="所属svn代码库",blank=True)
     created_person = models.CharField(max_length=30,verbose_name="创建人")

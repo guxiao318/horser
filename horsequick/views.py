@@ -2,7 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect
 import json
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
-from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relation
+from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relation,Category_Info
 from django.forms import model_to_dict
 from functools import wraps
 
@@ -17,8 +17,8 @@ def check_login(func):
         if login_status:
             user_name = request.session.get('user_name',False)#从session中获取用户名
             user_id = User_Info.objects.get(user_name=user_name).id
-            domain_name = request.session.get('domain_name',False)#从session中获取领域名
-            domain_id = Domain_Info.objects.get(domain_name=domain_name).id
+            domain_id = request.session.get('domain_id',False)#从session中获取领域id名
+            domain_name = Domain_Info.objects.get(id=domain_id).domain_name
 
 
             domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
@@ -30,21 +30,23 @@ def check_login(func):
             show = {"user_name": user_name,"domain_total":domain_total_name_good,"domain_name":domain_name,"domain_id":domain_id}
 
 
-            group_list = Interface_Info.objects.filter(belong_domain=domain_id).values("belong_group").distinct()  # 分类列表
-            group_list_good = []
+            category_list = Interface_Info.objects.filter(belong_domain=domain_id).values("belong_category__category_name").distinct()  # 领域对于下的分类名列表
+            category_list_good = []
             back_dict = {}
 
-            for i in group_list:
-                group_list_good.append(i["belong_group"])  # 将分类转换为列表类型
+            for i in category_list:
+                category_list_good.append(i["belong_category__category_name"])  # 将分类转换为列表类型
 
-            for i in group_list_good:
-                interface_name_objects = Interface_Info.objects.filter(belong_group=i).values("interface_name", "id")
-                interface_name_list = []
-                for n in interface_name_objects:
-                    interface_name_list.append(n)
-                    back_dict[i] = interface_name_list  # 嵌套字典
+
+            for i in category_list_good:
+                interface_info_objects = Interface_Info.objects.filter(belong_category__category_name=i).values("interface_name", "id")
+                interface_info_list = []
+                for n in interface_info_objects:
+                    interface_info_list.append(n)
+                    back_dict[i] = interface_info_list  # 嵌套字典
 
             show["interface_info"] = back_dict
+            show["category_list"] = category_list_good
 
             return func(request, *args,**show)
         else:
@@ -76,7 +78,7 @@ def horser_login(request):
                 if password == User_Info.objects.get(user_name=user_name).password:
                     resp = {'code': '000000', 'msg': '登录成功！'}
                     request.session['user_name'] =user_name
-                    request.session['domain_name']= "通用领域" #初始化默认通用领域
+                    request.session['domain_id']= 1 #初始化默认通用领域
                     request.session['login_status'] = True
                 else:
                     resp = {'code': '000002', 'msg': '登录失败，密码错误请重新输入！'}
@@ -115,7 +117,10 @@ def domain_manage(request,**show):
         html = "domain_manage.html"
 
         back_dict = show["interface_info"]
-        return render(request,html,{"show":show,"back_dict":back_dict})
+        domain_info = Domain_Info.objects.get(id=show["domain_id"])
+        category_info = Category_Info.objects.filter(belong_domain=show["domain_id"])
+
+        return render(request,html,{"show":show,"back_dict":back_dict,"domain_info":domain_info,"category_info":category_info})
 
 
 @csrf_exempt
@@ -157,7 +162,7 @@ def interface_add(request,**show):
         input_need_list = receive_data['input_need_list']
         input_demo_list = receive_data['input_demo_list']
         belong_subsys = receive_data['belong_subsys']
-        belong_group = receive_data['belong_group']
+        belong_category = receive_data['belong_category']
         belong_git_base = receive_data['belong_git_base']
         belong_svn_base = receive_data['belong_svn_base']
 
@@ -167,7 +172,7 @@ def interface_add(request,**show):
         input_demo_list = ",".join(input_demo_list)
 
         input_dict = {"interface_name":interface_name,"interface_type":interface_type,"input_field_list":input_field_list,
-                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_group":belong_group,"belong_subsys":belong_subsys,"belong_git_base":belong_git_base,
+                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_category":belong_category,"belong_subsys":belong_subsys,"belong_git_base":belong_git_base,
                       "belong_svn_base":belong_svn_base,"interface_mock":interface_mock}
 
         try:
@@ -196,7 +201,9 @@ def interface_add(request,**show):
 
     else:
         html = "interface_add.html"
+
         back_dict = show["interface_info"]
+        #该领域下的接口分类
 
         return render(request, html, {'show': show, "back_dict": back_dict})
 
@@ -237,8 +244,31 @@ def select_domain(request):
         receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
 
         domain_name = receive_data['domain_name']
-        request.session['domain_name'] =domain_name #切换领域时，修改session的值
+        domain_id = Domain_Info.objects.get(domain_name=domain_name).id
+        request.session['domain_id'] =domain_id #切换领域时，修改session的领域ID值
         resp={'code':'000000'}
 
         return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
+
+@check_login
+@csrf_exempt
+def edit_domain(request,**show):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        domain_name = receive_data['domain_name']
+        domain_brief = receive_data['domain_brief']
+
+        try:
+            if Domain_Info.objects.filter(domain_name = domain_name,domain_brief=domain_brief).exists():
+                raise Exception
+        except Exception:
+
+            resp={'code':'000001','msg':'修改失败，领域名已存在或信息无变动！'}
+        else:
+            to_update = Domain_Info.objects.filter(id = show["domain_id"])
+            to_update.update(domain_name=domain_name,domain_brief=domain_brief)
+            resp = {'code': '000000', 'msg': '领域信息修改成功！'}
+
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")

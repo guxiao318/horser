@@ -8,25 +8,67 @@
 
 
     {% block content %}
+
         <div class="tabbable" id="domain_switch">
 				<ul class="nav nav-tabs">
 					<li class="active">
-						 <a href="#domain_edit" data-toggle="tab">编辑</a>
+						 <a href="#domain_edit" data-toggle="tab">编辑领域</a>
 					</li>
 					<li>
-						 <a href="#domain_add" data-toggle="tab">新增</a>
+						 <a href="#domain_add" data-toggle="tab">新增领域</a>
+					</li>
+                    <li>
+						 <a href="#category_edit" data-toggle="tab">编辑分类</a>
 					</li>
 				</ul><br>
 
 
 				<div class="tab-content">
-                        <div class="tab-pane active" id="domain_edit">
-                        <p>bianji</p>
-                        </div>
+                    <div class="tab-pane active" id="domain_edit">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2 col-lg-2">领域名</th>
+                                    <th class="col-md-10 col-lg-10">领域简介</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2 col-lg-2"><input id="domain_name_edit" type="text" value="{{ domain_info.domain_name }}"></td>
+                                    <td class="col-md-10 col-lg-10"><textarea id="domain_brief_edit" style="width: 100%">{{ domain_info.domain_brief }}</textarea></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                            <button class="btn btn-success" onclick="edit_domain()">修改</button>
+                    </div>
+
+                    <div class="tab-pane" id="category_edit">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2 col-lg-2">序号</th>
+                                    <th class="col-md-8 col-lg-8">分类名</th>
+                                    <th class="col-md-2 col-lg-2">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in category_info %}
+                                <tr>
+                                    <td class="col-md-2 col-lg-2">{{i.id}}</td>
+                                    <td class="col-md-8 col-lg-8"><input id="domain_brief_edit" style="width: 100%" value="{{i.category_name}}"></td>
+                                    <td class="col-md-2 col-lg-2"><button class="btn btn-success btn-sm" onclick="edit_category()">修改</button>&nbsp;<button class="btn btn-info btn-sm">删除</button> </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
 
 
-                        <div class="tab-pane" id="domain_add">
+
+                    <div class="tab-pane" id="domain_add">
 
                             <div class="form-inline">
                                 <label class="mylabel" for="domain_name"><span style="color: red">*</span> 领域名：</label><input id="domain_name" name="domain_name" placeholder="领域名（必填）" class="form-control" style="width: 85%">
@@ -38,7 +80,8 @@
 
 
                             <button type="button" class="btn btn-default" id="domain_add" style="float: right" onclick="domain_add()">提交</button>
-                        </div>
+                    </div>
+
                 </div>
 
         </div>

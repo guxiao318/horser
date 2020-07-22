@@ -26,7 +26,7 @@ $.ajaxSetup({
         var interface_url = $("#interface_url").val()
 		var interface_mock = $("#interface_mock").val()
 		var belong_subsys = $("#belong_subsys").val()
-		var belong_group = $("#belong_group").val()
+		var belong_category = $("#belong_category").val()
         var belong_git_base = $("#belong_git_base").val()
         var belong_svn_base = $("#belong_svn_base").val()
 
@@ -38,18 +38,18 @@ $.ajaxSetup({
 			type:"post",
 			url:"/interface_add/",
 			data:JSON.stringify({"interface_name":interface_name,"interface_type":interface_type,"input_field_list":input_field_list,
-			"input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_group":belong_group,
+			"input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_category":belong_category,
 			"belong_subsys":belong_subsys,"belong_git_base":belong_git_base,"belong_svn_base":belong_svn_base,"interface_mock":interface_mock}),
 			cache:false,
 			async:false,
 			dataType:"json",
 			
 			success:function(resp){
-				if(resp.code =="000000"){
+				if(resp.code ==="000000"){
 					alert(resp.msg);
 				}
 				
-				else if(resp.code=="000001"){
+				else if(resp.code==="000001"){
 					alert(resp.msg);
 				}
 				
@@ -80,9 +80,9 @@ $.ajaxSetup({
 			async: false,
 			dataType: "json",
 			success: function (resp) {
-				if (resp.code == "000000") {
+				if (resp.code === "000000") {
 					alert(resp.msg);
-				} else if (resp.code == "000001") {
+				} else if (resp.code === "000001") {
 					alert(resp.msg);
 				} else {
 					alert(resp.msg);
@@ -113,13 +113,13 @@ $.ajaxSetup({
 			async: false,
 			dataType: "json",
 			success: function (resp) {
-				if (resp.code == "000000") {
+				if (resp.code === "000000") {
 					alert(resp.msg);
 					window.location.href = "/"
-				} else if (resp.code == "000001") {
+				} else if (resp.code === "000001") {
 					alert(resp.msg);
 				}
-				else if (resp.code == "000002") {
+				else if (resp.code === "000002") {
 					alert(resp.msg);
 				}
 				else {
@@ -167,16 +167,8 @@ $.ajaxSetup({
 			async: false,
 			dataType: "json",
 			success: function (resp) {
-				if (resp.code == "000000") {
+				if (resp.code === "000000") {
 					window.location.href = "/"
-				} else if (resp.code == "000001") {
-					alert(resp.msg);
-				}
-				else if (resp.code == "000002") {
-					alert(resp.msg);
-				}
-				else {
-					alert(resp.msg);
 				}
 			},
 			error: function () {
@@ -185,3 +177,34 @@ $.ajaxSetup({
 		});
 
 	}
+
+
+
+
+function edit_domain() {
+
+		var domain_name = $("#domain_name_edit").val()
+		var domain_brief = $("#domain_brief_edit").val()
+
+		$.ajax({
+			type: "post",
+			url: "/edit_domain/",
+			data: JSON.stringify({"domain_name": domain_name,"domain_brief":domain_brief}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}

@@ -35,7 +35,7 @@
 
 
                 <div class="form-inline">
-                    <label class="mylabel" for="belong_group">所属分类：</label><select id="belong_group" name="belong_group" placeholder="选择分类" class="form-control" style="width: 85%" ><option></option><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
+                    <label class="mylabel" for="belong_category">所属分类：</label><select id="belong_category" name="belong_category" placeholder="选择分类" class="form-control" style="width: 85%" >{% for i in show.category_list %}<option>{{i }}</option>{% endfor %}</select>
                 </div><br>
 
 
