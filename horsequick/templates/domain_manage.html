@@ -20,6 +20,9 @@
                     <li>
 						 <a href="#category_edit" data-toggle="tab">编辑分类</a>
 					</li>
+                    <li>
+						 <a href="#category_add" data-toggle="tab">新增分类</a>
+					</li>
 				</ul><br>
 
 
@@ -54,9 +57,9 @@
                             <tbody>
                                 {% for i in category_info %}
                                 <tr>
-                                    <td class="col-md-2 col-lg-2">{{i.id}}</td>
-                                    <td class="col-md-8 col-lg-8"><input id="domain_brief_edit" style="width: 100%" value="{{i.category_name}}"></td>
-                                    <td class="col-md-2 col-lg-2"><button class="btn btn-success btn-sm" onclick="edit_category()">修改</button>&nbsp;<button class="btn btn-info btn-sm">删除</button> </td>
+                                    <td class="col-md-2 col-lg-2" id="category_id">{{i.id}}</td>
+                                    <td class="col-md-8 col-lg-8" id="category_name_edit"><input style="width: 100%" value="{{i.category_name}}"></td>
+                                    <td class="col-md-2 col-lg-2"><button class="btn btn-success btn-sm" onclick="edit_category(this)">修改</button>&nbsp;<button class="btn btn-info btn-sm" onclick="delete_category(this)">删除</button> </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -79,7 +82,19 @@
                             </div><br>
 
 
-                            <button type="button" class="btn btn-default" id="domain_add" style="float: right" onclick="domain_add()">提交</button>
+                            <button type="button" class="btn btn-default" id="domain_add_btn" style="float: right" onclick="domain_add()">新增</button>
+                    </div>
+
+                    <div class="tab-pane" id="category_add">
+
+                            <div class="form-inline">
+                                <label class="mylabel" for="category_name"><span style="color: red">*</span> 分类名：</label><input id="category_name" name="category_name" placeholder="分类名（必填）" class="form-control" style="width: 85%">
+                            </div><br>
+
+
+
+
+                            <button type="button" class="btn btn-default" id="category_add_btn" style="float: right" onclick="category_add()">新增</button>
                     </div>
 
                 </div>

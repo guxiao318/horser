@@ -99,6 +99,38 @@ $.ajaxSetup({
 		});
 	}
 
+	function category_add() {
+		var category_name = $("#category_name").val()
+
+
+		$.ajax({
+
+			type: "post",
+			url: "/category_add/",
+			data: JSON.stringify({"category_name": category_name}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				} else {
+					alert(resp.msg);
+				}
+
+			},
+
+			error: function () {
+
+				alert("出错了");
+			}
+
+
+		});
+	}
+
 
 	function horser_login() {
 		var user_name = $("#user_name").val()
@@ -208,3 +240,64 @@ function edit_domain() {
 		});
 
 }
+
+
+function edit_category(obj) {
+
+    	var tr = $(obj).parent().parent()
+		var category_id = tr.children("td#category_id").text()
+		var category_name_edit = tr.children("td#category_name_edit").find("input").val()
+
+		$.ajax({
+			type: "post",
+			url: "/edit_category/",
+			data: JSON.stringify({"category_id": category_id,"category_name_edit":category_name_edit}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}
+
+
+function delete_category(obj) {
+
+    	var tr = $(obj).parent().parent()
+		var category_id = tr.children("td#category_id").text()
+
+
+		$.ajax({
+			type: "post",
+			url: "/delete_category/",
+			data: JSON.stringify({"category_id": category_id}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}
+

@@ -20,27 +20,17 @@
             <div class="row">
                  <div class="col-md-2 col-lg-2">
                     <div class="panel-group" id="accordion">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href="/domain_manage/">
-                                        领域管理
-                                    </a>
-                                </h4>
-                            </div>
-                        </div>
-
-
 
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#accordion"
                                        href="#collapse_one">
-                                        接口仓库<span class="pull-right glyphicon glyphicon-chevron-down"></span><span class="badge">{{ show.interface_nums }}</span>
+                                        接口列表<span class="pull-right glyphicon glyphicon-chevron-down"></span><span class="badge">{{ show.interface_nums }}</span>
                                     </a>
                                 </h4>
                             </div>
+
                             <div id="collapse_one" class="panel-collapse collapse in">
                                 <div class="panel-body" style="text-align: left">
                                     {% for k,v in back_dict.items  %}
@@ -66,55 +56,16 @@
 
                             </div>
                         </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href="/interface_add">
-                                        接口录入
-                                    </a>
-                                </h4>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href="/member_manage/">
-                                        成员管理
-                                    </a>
-                                </h4>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href="/horser_help">
-                                        使用指南
-                                    </a>
-                                </h4>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a href="/#">
-                                        意见反馈
-                                    </a>
-                                </h4>
-                            </div>
-                        </div>
                     </div>
-
                  </div>
 
 
 
 
 
-                <div class="col-md-10 col-lg-10">
 
+                <div class="col-md-6 col-lg-6">
+                    <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4>{% block headmessage %}{% endblock %}</h4>
                         </div>
@@ -123,14 +74,30 @@
                         <div class=" panel-body">
                             {% block content %}{% endblock %}
                         </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-4 col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4>测试结果</h4>
+                        </div>
+
+
+                        <div class=" panel-body">
+                            <label for="testresult"></label><textarea id="testresult" style="width: 100% ;height: 700px;overflow: auto;resize: none">{{ testresult }}</textarea>
+                        </div>
+                    </div>
 
 
                 </div>
+
+
+
+
             </div>
-
         </div>
-
-
 
 
 </body>

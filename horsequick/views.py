@@ -9,11 +9,11 @@ from functools import wraps
 # Create your views here.
 
 def check_login(func):
+
     @wraps(func)
     def warpper(request,*args,**kwargs):
-
         login_status =request.session.get('login_status',False)
-
+        interface_nums = 0
         if login_status:
             user_name = request.session.get('user_name',False)#从session中获取用户名
             user_id = User_Info.objects.get(user_name=user_name).id
@@ -40,13 +40,21 @@ def check_login(func):
 
             for i in category_list_good:
                 interface_info_objects = Interface_Info.objects.filter(belong_category__category_name=i).values("interface_name", "id")
+                interface_num_category = len(interface_info_objects) #类别下的接口数量
                 interface_info_list = []
+
                 for n in interface_info_objects:
                     interface_info_list.append(n)
                     back_dict[i] = interface_info_list  # 嵌套字典
 
+                interface_nums = interface_nums +interface_num_category
+
+
+
+            show["interface_nums"] = interface_nums  # 该领域下接口数量
             show["interface_info"] = back_dict
             show["category_list"] = category_list_good
+
 
             return func(request, *args,**show)
         else:
@@ -92,7 +100,7 @@ def horser_login(request):
 
 @check_login
 def horser_index(request,**show):
-    global interface_name_objects
+
     if request.method == "GET":
 
 
@@ -100,6 +108,34 @@ def horser_index(request,**show):
         back_dict = show["interface_info"]
 
         return render(request,html,{"show":show,"back_dict":back_dict})
+
+
+
+@check_login
+def interface_webtest(request,jiekouId,**show):
+
+    if request.method == "GET":
+
+        try:
+            r = Interface_Info.objects.get(id=jiekouId)
+
+            if r != None:
+                r_dict = model_to_dict(r)
+                input_field_list = r_dict["input_field_list"].split(",")
+                input_need_list = r_dict["input_need_list"].split(",")
+                input_demo_list = r_dict["input_demo_list"].split(",")
+                parm_id_list = range(len(input_field_list))
+                r_dict_return = {}
+                for p, n, d, i in zip(input_field_list, input_need_list, input_demo_list, parm_id_list):
+                    r_dict_return[i] = {"parm": p, "need": n, "demo": d, "num": i}
+
+                html = 'interface_webtest.html'
+                back_dict = show["interface_info"]
+
+                return render(request, html,
+                              {"r": r, "r_dict_return": r_dict_return, "show": show, "back_dict": back_dict})
+        except:
+            return redirect("/")
 
 
 @check_login
@@ -124,8 +160,8 @@ def domain_manage(request,**show):
 
 
 @csrf_exempt
-@check_login
-def domain_add(request,**show):
+def domain_add(request):
+    global resp
     if request.method == "POST":
         receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
         domain_name = receive_data['domain_name']
@@ -144,6 +180,30 @@ def domain_add(request,**show):
                 resp = {'code': '000000', 'msg': '添加成功'}
 
     return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+
+@csrf_exempt
+@check_login
+def category_add(request,**show):
+    global resp
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+        category_name = receive_data['category_name']
+
+        try:
+            if category_name.strip() =="":
+                raise Exception
+        except Exception:
+            resp = {'code':'000001','msg':'必填项不能为空'}
+        else:
+            if Category_Info.objects.filter(category_name=category_name).exists():
+                resp = {'code': '000002', 'msg': '添加失败，该领域下已存在此类别！'}
+            else:
+                Category_Info.objects.create(category_name=category_name,belong_domain_id=show["domain_id"])
+                resp = {'code': '000000', 'msg': '添加成功'}
+
+    return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
 
 
 
@@ -270,5 +330,63 @@ def edit_domain(request,**show):
             to_update = Domain_Info.objects.filter(id = show["domain_id"])
             to_update.update(domain_name=domain_name,domain_brief=domain_brief)
             resp = {'code': '000000', 'msg': '领域信息修改成功！'}
+
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+    @check_login
+    @csrf_exempt
+    def edit_domain(request, **show):
+        if request.method == "POST":
+            receive_data = json.loads(request.body.decode())  # 将body从byte类型转码后用json的loads函数将json格式转为字典
+
+            domain_name = receive_data['domain_name']
+            domain_brief = receive_data['domain_brief']
+
+            try:
+                if Domain_Info.objects.filter(domain_name=domain_name, domain_brief=domain_brief).exists():
+                    raise Exception
+            except Exception:
+
+                resp = {'code': '000001', 'msg': '修改失败，领域名已存在或信息无变动！'}
+            else:
+                to_update = Domain_Info.objects.filter(id=show["domain_id"])
+                to_update.update(domain_name=domain_name, domain_brief=domain_brief)
+                resp = {'code': '000000', 'msg': '领域信息修改成功！'}
+
+            return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+
+
+
+@csrf_exempt
+def edit_category(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        category_id = receive_data['category_id']
+        category_name_edit = receive_data['category_name_edit']
+
+        try:
+            if Category_Info.objects.filter(id= category_id,category_name=category_name_edit).exists():
+                raise Exception
+        except Exception:
+
+            resp={'code':'000001','msg':'修改失败，类别信息无变动！'}
+        else:
+            to_update = Category_Info.objects.filter(id = category_id)
+            to_update.update(category_name =category_name_edit)
+            resp = {'code': '000000', 'msg': '领域信息修改成功！'}
+
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+
+@csrf_exempt
+def delete_category(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        category_id = receive_data['category_id']
+        Category_Info.objects.filter(id = category_id).delete()
+
+        resp = {'code': '000000', 'msg': '该类别已删除，类别下的接口转移到未分类！'}
 
         return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")

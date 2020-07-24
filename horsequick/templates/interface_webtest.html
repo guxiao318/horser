@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% extends 'horser_webtest_base.html' %}
+    {% block title %}horser--接口web测试{% endblock %}
+
+    {% block headmessage %}
+    入参&nbsp;&nbsp;&nbsp;(<span style="color: red">*</span>为必填)
+    {% endblock %}
+
+    {% block content %}
+
+        {% for k,v in r_dict_return.items %}
+            <div class="form-inline">
+                                <label class="mylabel" for="interface_name">{% if v.need == "必需" %}
+                                    <span style="color: red">*</span>
+                                {% else %}
+                                    <span></span>
+                                {% endif %}{{v.parm}}：</label>
+                                <input id="parm_{{ k }}" name="parm_{{ k }}" placeholder="输入参数" class="form-control" style="width: 70%">
+            </div>
+            <br>
+        {% endfor %}
+        <button class="btn btn-success" style="float: right">测试</button>
+
+    {% endblock %}
+
+</html>
