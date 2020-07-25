@@ -17,7 +17,9 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include,url
 from horsequick.views import horser_index,horser_help,interface_add,interface_detail,\
-    interface_depot,domain_manage,domain_add,horser_login,select_domain,edit_domain,edit_category,delete_category,category_add,interface_webtest
+    interface_depot,domain_manage,domain_add,horser_login,select_domain,edit_domain,\
+    edit_category,delete_category,category_add,interface_webtest_detail,interface_webtest,\
+    webtest_go
 
 
 urlpatterns = [
@@ -25,7 +27,8 @@ urlpatterns = [
     url(r'^$', horser_index, name='horser_index'),
     url(r'^login/$', horser_login, name='horser_login'),
     url(r'^horser_help/$', horser_help, name='horser_help'),
-    url(r'^interface_webtest/(\w+)$', interface_webtest, name='interface_webtest'),
+    url(r'^interface_webtest/$', interface_webtest, name='interface_webtest'),
+    url(r'^interface_webtest_detail/(\w+)$', interface_webtest_detail, name='interface_webtest_detail'),
     url(r'^interface_add/$', interface_add, name='interface_add'),
     url(r'^domain_add/$', domain_add, name='domain_add'),
     url(r'^interface_depot/$', interface_depot, name='interface_depot'),
@@ -35,6 +38,7 @@ urlpatterns = [
     url(r'^edit_category/$', edit_category, name='edit_category'),
     url(r'^category_add/$', category_add, name='category_add'),
     url(r'^delete_category/$', delete_category, name='delete_category'),
+    url(r'^webtest_go/$', webtest_go, name='webtest_go'),
     url(r'^interface_detail/(\w+)$', interface_detail, name='interface_detail'),
 
     ]

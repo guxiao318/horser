@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% extends 'horser_webtest_base.html' %}
+    {% block title %}horser--接口web测试{% endblock %}
+
+    {% block headmessage %}<p id="interface_name_now">{{ interface_name_dict.interface_name }}</p>
+    {% endblock %}
+
+    {% block content %}
+        <div class="form-inline">
+            <label class="mylabel" > <span style="color: red">*</span>
+            协议类型：
+            </label>
+            <select id ="protocol_type" name="protocol_type" class="form-control" style="width: 70%"><option>https</option><option>http</option></select>
+        </div><br>
+
+        {% for k,v in r_dict_return.items %}
+            <div class="form-inline">
+
+                                <label class="mylabel" for="interface_name">{% if v.need == "必需" %}
+                                    <span style="color: red">*</span>
+                                {% else %}
+                                    <span></span>
+                                {% endif %}{{v.parm}}：</label>
+                                <input  id="parm_{{ k }}" name="parm_{{ k }}" placeholder="输入参数" class="params_input form-control" style="width: 70%">
+            </div>
+            <br>
+        {% endfor %}
+        <button class="btn btn-success" style="float: right" onclick="webtest_go()">测试</button>
+
+    {% endblock %}
+
+</html>

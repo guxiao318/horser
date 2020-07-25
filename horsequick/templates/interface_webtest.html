@@ -4,23 +4,11 @@
     {% block title %}horser--接口web测试{% endblock %}
 
     {% block headmessage %}
-    入参&nbsp;&nbsp;&nbsp;(<span style="color: red">*</span>为必填)
+    使用说明
     {% endblock %}
 
     {% block content %}
-
-        {% for k,v in r_dict_return.items %}
-            <div class="form-inline">
-                                <label class="mylabel" for="interface_name">{% if v.need == "必需" %}
-                                    <span style="color: red">*</span>
-                                {% else %}
-                                    <span></span>
-                                {% endif %}{{v.parm}}：</label>
-                                <input id="parm_{{ k }}" name="parm_{{ k }}" placeholder="输入参数" class="form-control" style="width: 70%">
-            </div>
-            <br>
-        {% endfor %}
-        <button class="btn btn-success" style="float: right">测试</button>
+        <span style="padding-left: 2em">选择你想要的测试接口，在web端输入参数后点击测试，测试结果将在右边栏中以JSON的格式展示！</span>
 
     {% endblock %}
 

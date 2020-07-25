@@ -67,6 +67,49 @@ $.ajaxSetup({
 
     }
 
+
+    function webtest_go() {
+		var input_field_value_list = new Array() //入参数组
+
+		var interface_name_now = $("#interface_name_now").text() //当前接口名
+		var protocol_type = $("#protocol_type").val() //协议类型
+
+		$(".params_input").each(function () {
+			input_field_value_list.push($(this).val())
+		})
+
+		$.ajax({
+
+			type: "post",
+			url: "/webtest_go/",
+			data: JSON.stringify({"input_field_value_list": input_field_value_list,"interface_name_now":interface_name_now,
+			"protocol_type":protocol_type}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					$("#testresult").val(resp.testresult)
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				} else {
+					alert(resp.msg);
+				}
+
+			},
+
+			error: function () {
+
+				alert("出错了");
+			}
+
+
+		});
+	}
+
+
+
+
     function domain_add() {
 		var domain_name = $("#domain_name").val()
 		var domain_brief = $("#domain_brief").val()

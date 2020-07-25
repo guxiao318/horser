@@ -1,65 +1,70 @@
 from django.shortcuts import render,HttpResponse,redirect
-import json
+import json,requests
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relation,Category_Info
 from django.forms import model_to_dict
 from functools import wraps
+from collections import ChainMap
+
 
 # Create your views here.
 
-def check_login(func):
+def check_login(func): #检查登录状态及和登录相关的初始化装饰器
 
-    @wraps(func)
-    def warpper(request,*args,**kwargs):
-        login_status =request.session.get('login_status',False)
-        interface_nums = 0
-        if login_status:
-            user_name = request.session.get('user_name',False)#从session中获取用户名
-            user_id = User_Info.objects.get(user_name=user_name).id
-            domain_id = request.session.get('domain_id',False)#从session中获取领域id名
-            domain_name = Domain_Info.objects.get(id=domain_id).domain_name
+        @wraps(func)
+        def warpper(request,*args,**kwargs):
 
-
-            domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
-
-            domain_total_name_good =[]
-            for i in domain_total:
-                domain_total_name_good.append(i["belong_domain__domain_name"])
-
-            show = {"user_name": user_name,"domain_total":domain_total_name_good,"domain_name":domain_name,"domain_id":domain_id}
+            login_status =request.session.get('login_status',False)
+            interface_nums = 0
+            if login_status:
+                user_name = request.session.get('user_name',False)#从session中获取用户名
+                user_id = User_Info.objects.get(user_name=user_name).id
+                domain_id = request.session.get('domain_id',False)#从session中获取领域id名
+                domain_name = Domain_Info.objects.get(id=domain_id).domain_name
 
 
-            category_list = Interface_Info.objects.filter(belong_domain=domain_id).values("belong_category__category_name").distinct()  # 领域对于下的分类名列表
-            category_list_good = []
-            back_dict = {}
+                domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
 
-            for i in category_list:
-                category_list_good.append(i["belong_category__category_name"])  # 将分类转换为列表类型
+                domain_total_name_good =[]
+                for i in domain_total:
+                    domain_total_name_good.append(i["belong_domain__domain_name"])
 
-
-            for i in category_list_good:
-                interface_info_objects = Interface_Info.objects.filter(belong_category__category_name=i).values("interface_name", "id")
-                interface_num_category = len(interface_info_objects) #类别下的接口数量
-                interface_info_list = []
-
-                for n in interface_info_objects:
-                    interface_info_list.append(n)
-                    back_dict[i] = interface_info_list  # 嵌套字典
-
-                interface_nums = interface_nums +interface_num_category
+                show = {"user_name": user_name,"domain_total":domain_total_name_good,"domain_name":domain_name,"domain_id":domain_id}
 
 
+                category_list = Interface_Info.objects.filter(belong_domain=domain_id).values("belong_category__category_name").distinct()  # 领域对于下的分类名列表
+                category_list_good = []
+                back_dict = {}
 
-            show["interface_nums"] = interface_nums  # 该领域下接口数量
-            show["interface_info"] = back_dict
-            show["category_list"] = category_list_good
+                for i in category_list:
+                    category_list_good.append(i["belong_category__category_name"])  # 将分类转换为列表类型
 
 
-            return func(request, *args,**show)
-        else:
-            return redirect("/login/")
-    return warpper
+                for i in category_list_good:
+                    interface_info_objects = Interface_Info.objects.filter(belong_category__category_name=i).values("interface_name", "id")
+                    interface_num_category = len(interface_info_objects) #类别下的接口数量
+                    interface_info_list = []
+
+                    for n in interface_info_objects:
+                        interface_info_list.append(n)
+                        back_dict[i] = interface_info_list  # 嵌套字典
+
+                    interface_nums = interface_nums +interface_num_category
+
+
+
+                show["interface_nums"] = interface_nums  # 该领域下接口数量
+                show["interface_info"] = back_dict
+                show["category_list"] = category_list_good
+
+
+                return func(request, *args, **show)
+
+
+            else:
+                return redirect("/login/")
+        return warpper
 
 
 
@@ -110,9 +115,19 @@ def horser_index(request,**show):
         return render(request,html,{"show":show,"back_dict":back_dict})
 
 
+@check_login
+def interface_webtest(request,**show):
+
+    if request.method == "GET":
+            html = 'interface_webtest.html'
+            back_dict = show["interface_info"]
+
+            return render(request, html,{"show": show,"back_dict":back_dict})
+
+
 
 @check_login
-def interface_webtest(request,jiekouId,**show):
+def interface_webtest_detail(request,jiekouId,**show):
 
     if request.method == "GET":
 
@@ -126,14 +141,16 @@ def interface_webtest(request,jiekouId,**show):
                 input_demo_list = r_dict["input_demo_list"].split(",")
                 parm_id_list = range(len(input_field_list))
                 r_dict_return = {}
+                interface_name_dict ={}
                 for p, n, d, i in zip(input_field_list, input_need_list, input_demo_list, parm_id_list):
                     r_dict_return[i] = {"parm": p, "need": n, "demo": d, "num": i}
 
-                html = 'interface_webtest.html'
+                html = 'interface_webtest_detail.html'
                 back_dict = show["interface_info"]
+                interface_name_dict["interface_name"] = r.interface_name
 
                 return render(request, html,
-                              {"r": r, "r_dict_return": r_dict_return, "show": show, "back_dict": back_dict})
+                              {"r_dict_return": r_dict_return, "show": show, "back_dict": back_dict,"interface_name_dict":interface_name_dict})
         except:
             return redirect("/")
 
@@ -232,7 +249,7 @@ def interface_add(request,**show):
         input_demo_list = ",".join(input_demo_list)
 
         input_dict = {"interface_name":interface_name,"interface_type":interface_type,"input_field_list":input_field_list,
-                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_category":belong_category,"belong_subsys":belong_subsys,"belong_git_base":belong_git_base,
+                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_subsys":belong_subsys,"belong_git_base":belong_git_base,
                       "belong_svn_base":belong_svn_base,"interface_mock":interface_mock}
 
         try:
@@ -251,6 +268,7 @@ def interface_add(request,**show):
                 input_dict["created_time"] = created_time
                 input_dict["belong_domain_id"] = show["domain_id"] #添加的归属领域默认为当前领域
                 input_dict["created_person"] = show["user_name"] #添加的创建人为当前登录用户
+                input_dict["belong_category_id"] = Category_Info.objects.get(category_name=belong_category).id
                 Interface_Info.objects.create(**input_dict)
 
                 resp = {'code': '000000', 'msg': '添加成功'}
@@ -390,3 +408,66 @@ def delete_category(request):
         resp = {'code': '000000', 'msg': '该类别已删除，类别下的接口转移到未分类！'}
 
         return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+@csrf_exempt
+def webtest_go(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        input_field_value_list = receive_data['input_field_value_list']
+        interface_name_now = receive_data['interface_name_now'] #当前接口名
+        protocol_type = receive_data['protocol_type']  # 协议类型
+
+        interface_objects = Interface_Info.objects.get(interface_name=interface_name_now)
+        interface_type = interface_objects.interface_type#请求类型
+        interface_url = interface_objects.interface_url
+        input_need_list =interface_objects.input_need_list.split(",")#当前接口的入参必需列表
+        input_filed_list = interface_objects.input_field_list.split(",")
+        req_url = protocol_type+"://"+interface_url
+
+        try:
+            for v,need in zip(input_field_value_list,input_need_list):
+                if v=="" and need =="必需":
+                    raise Exception
+        except  Exception:
+            resp = {'code': '000001', 'msg': '请求失败，必填项不能为空！'}
+            return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+
+        else:#所有必填项都填了
+            input_filed_num = len(input_filed_list)
+            parms_value_dict_zip ={}
+            parms_value_dict = {}
+            for parm, value,i in zip(input_filed_list, input_field_value_list,range(input_filed_num)):
+                parms_value_dict_zip[i] = {parm:value}
+
+
+            for k,parms_input in parms_value_dict_zip.items():
+                parms_value_dict =ChainMap(parms_value_dict,parms_input)
+
+            if interface_type =="GET":
+
+                r = requests.get(req_url,params=parms_value_dict)
+                r_json = r.json()
+                testresult = json.dumps(r_json,ensure_ascii=False,indent=4)
+                resp = {'code': '000000','msg': '请求成功',"testresult":testresult}
+                return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+            elif interface_type =="POST":
+                r = requests.post(req_url, data=parms_value_dict)
+                r_json = r.json()
+                testresult = json.dumps(r_json, ensure_ascii=False, indent=4)
+                resp = {'code': '000000', 'msg': '请求成功', "testresult": testresult}
+                return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+
+
+
+
+
+
+
+
+
+
+
+
+
