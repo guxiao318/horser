@@ -12,22 +12,22 @@
         <div class="tabbable" id="domain_switch">
 				<ul class="nav nav-tabs">
 					<li class="active">
-						 <a href="#domain_edit" data-toggle="tab">编辑领域</a>
+						 <a href="#domain_category_subsys_edit" data-toggle="tab">编辑</a>
 					</li>
 					<li>
-						 <a href="#domain_add" data-toggle="tab">新增领域</a>
+						 <a href="#domain_category_subsys_add" data-toggle="tab">新增</a>
 					</li>
-                    <li>
-						 <a href="#category_edit" data-toggle="tab">编辑分类</a>
-					</li>
-                    <li>
-						 <a href="#category_add" data-toggle="tab">新增分类</a>
-					</li>
+
 				</ul><br>
 
 
 				<div class="tab-content">
-                    <div class="tab-pane active" id="domain_edit">
+                    <div class="tab-pane active" id="domain_category_subsys_edit">
+
+                         <blockquote>
+                                <p>领域相关</p>
+                         </blockquote>
+
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -42,14 +42,47 @@
                                 </tr>
                             </tbody>
                         </table>
-                            <button class="btn btn-success" onclick="edit_domain()">修改</button>
-                    </div>
+                            <button class="btn btn-sm btn-success" onclick="edit_domain()" style="float: right">修改</button>
 
-                    <div class="tab-pane" id="category_edit">
+
+                        <blockquote>
+                                <p>子系统相关</p>
+                         </blockquote>
+
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th class="col-md-2 col-lg-2">序号</th>
+                                    <th style="display: none">序号</th>
+                                    <th class="col-md-2 col-lg-2">子系统名</th>
+                                    <th class="col-md-4 col-lg-4">SVN地址</th>
+                                    <th class="col-md-4 col-lg-4">GIT地址</th>
+                                    <th class="col-md-2 col-lg-2">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in subsys_info %}
+                                <tr>
+                                    <td style="display: none" id="sub_sys_id">{{ i.id }}</td>
+                                    <td class="col-md-2 col-lg-2" id="sub_sys_name_edit"><input style="width: 100%" value="{{i.sub_sys_name}}"></td>
+                                    <td class="col-md-4 col-lg-4" id="svn_address_edit"><input style="width: 100%" value="{{i.svn_address}}"></td>
+                                    <td class="col-md-4 col-lg-4" id="git_address_edit"><input style="width: 100%" value="{{i.git_address}}"></td>
+                                    <td class="col-md-2 col-lg-2"><button class="btn btn-success btn-sm" onclick="edit_subsys(this)">修改</button>&nbsp;<button class="btn btn-info btn-sm" onclick="delete_subsys(this)">删除</button> </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+
+                        </table>
+
+
+
+                         <blockquote>
+                                <p>类别相关</p>
+                         </blockquote>
+
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="display: none">序号</th>
                                     <th class="col-md-8 col-lg-8">分类名</th>
                                     <th class="col-md-2 col-lg-2">操作</th>
                                 </tr>
@@ -57,7 +90,7 @@
                             <tbody>
                                 {% for i in category_info %}
                                 <tr>
-                                    <td class="col-md-2 col-lg-2" id="category_id">{{i.id}}</td>
+                                    <td style="display: none" id="category_id">{{ i.id }}</td>
                                     <td class="col-md-8 col-lg-8" id="category_name_edit"><input style="width: 100%" value="{{i.category_name}}"></td>
                                     <td class="col-md-2 col-lg-2"><button class="btn btn-success btn-sm" onclick="edit_category(this)">修改</button>&nbsp;<button class="btn btn-info btn-sm" onclick="delete_category(this)">删除</button> </td>
                                 </tr>
@@ -71,7 +104,13 @@
 
 
 
-                    <div class="tab-pane" id="domain_add">
+                    <div class="tab-pane" id="domain_category_subsys_add">
+
+                            <blockquote>
+                                <p>领域相关</p>
+                            </blockquote>
+
+
 
                             <div class="form-inline">
                                 <label class="mylabel" for="domain_name"><span style="color: red">*</span> 领域名：</label><input id="domain_name" name="domain_name" placeholder="领域名（必填）" class="form-control" style="width: 85%">
@@ -82,10 +121,33 @@
                             </div><br>
 
 
-                            <button type="button" class="btn btn-default" id="domain_add_btn" style="float: right" onclick="domain_add()">新增</button>
-                    </div>
+                            <button type="button" class="btn btn-sm btn-success" id="domain_add_btn" style="float: right" onclick="domain_add()">新增</button>
 
-                    <div class="tab-pane" id="category_add">
+
+                             <blockquote>
+                                <p>子系统相关</p>
+                            </blockquote>
+
+                             <div class="form-inline">
+                                <label class="mylabel" for="sub_sys_name"><span style="color: red">*</span> 子系统名：</label><input id="sub_sys_name" name="sub_sys_name" placeholder="子系统名（必填）" class="form-control" style="width: 85%">
+                            </div><br>
+
+                            <div class="form-inline">
+                                <label class="mylabel" for="git_address"> GTI地址：</label><input id="git_address" name="git_address" placeholder="git地址（选填）" class="form-control" style="width: 85%">
+                            </div><br>
+
+                            <div class="form-inline">
+                                <label class="mylabel" for="svn_address">SVN地址：</label><input id="svn_address" name="svn_address" placeholder="svn地址（选填）" class="form-control" style="width: 85%">
+                            </div><br>
+
+                            <button type="button" class="btn btn-sm btn-success" id="domain_add_btn" style="float: right" onclick="subsys_add()">新增</button>
+
+
+
+
+                            <blockquote>
+                                <p>类别相关</p>
+                            </blockquote>
 
                             <div class="form-inline">
                                 <label class="mylabel" for="category_name"><span style="color: red">*</span> 分类名：</label><input id="category_name" name="category_name" placeholder="分类名（必填）" class="form-control" style="width: 85%">
@@ -94,7 +156,7 @@
 
 
 
-                            <button type="button" class="btn btn-default" id="category_add_btn" style="float: right" onclick="category_add()">新增</button>
+                            <button type="button" class="btn btn-sm btn-success" id="category_add_btn" style="float: right" onclick="category_add()">新增</button>
                     </div>
 
                 </div>

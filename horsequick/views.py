@@ -2,7 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect
 import json,requests
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
-from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relation,Category_Info
+from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relation,Category_Info,Sub_Sys_Info
 from django.forms import model_to_dict
 from functools import wraps
 from collections import ChainMap
@@ -52,11 +52,17 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
 
                     interface_nums = interface_nums +interface_num_category
 
+                sub_sys_list =[]
+                sub_sys_with_domain = Sub_Sys_Info.objects.filter(belong_domain_id=domain_id).values("sub_sys_name")
+                for i in sub_sys_with_domain:
+                    sub_sys_list.append(i["sub_sys_name"])  # 将分类转换为列表类型
 
 
                 show["interface_nums"] = interface_nums  # 该领域下接口数量
                 show["interface_info"] = back_dict
                 show["category_list"] = category_list_good
+                show["sub_sys_list"] = sub_sys_list
+
 
 
                 return func(request, *args, **show)
@@ -172,8 +178,9 @@ def domain_manage(request,**show):
         back_dict = show["interface_info"]
         domain_info = Domain_Info.objects.get(id=show["domain_id"])
         category_info = Category_Info.objects.filter(belong_domain=show["domain_id"])
+        subsys_info = Sub_Sys_Info.objects.filter(belong_domain=show["domain_id"])
 
-        return render(request,html,{"show":show,"back_dict":back_dict,"domain_info":domain_info,"category_info":category_info})
+        return render(request,html,{"show":show,"back_dict":back_dict,"domain_info":domain_info,"category_info":category_info,"subsys_info":subsys_info})
 
 
 @csrf_exempt
@@ -201,6 +208,32 @@ def domain_add(request):
 
 @csrf_exempt
 @check_login
+def subsys_add(request,**show):
+    global resp
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+        sub_sys_name = receive_data['sub_sys_name']
+        svn_address = receive_data['svn_address']
+        git_address = receive_data['git_address']
+
+        try:
+            if sub_sys_name.strip() =="":
+                raise Exception
+        except Exception:
+            resp = {'code':'000001','msg':'必填项不能为空'}
+        else:
+            if Sub_Sys_Info.objects.filter(sub_sys_name=sub_sys_name).exists():
+                resp = {'code': '000002', 'msg': '添加失败，该领域下已存在此子系统！'}
+            else:
+                Sub_Sys_Info.objects.create(sub_sys_name=sub_sys_name,svn_address=svn_address,git_address=git_address,belong_domain_id=show["domain_id"])
+                resp = {'code': '000000', 'msg': '添加成功'}
+
+    return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+
+
+@csrf_exempt
+@check_login
 def category_add(request,**show):
     global resp
     if request.method == "POST":
@@ -223,8 +256,6 @@ def category_add(request,**show):
 
 
 
-
-
 @check_login
 @csrf_exempt
 def interface_add(request,**show):
@@ -240,8 +271,7 @@ def interface_add(request,**show):
         input_demo_list = receive_data['input_demo_list']
         belong_subsys = receive_data['belong_subsys']
         belong_category = receive_data['belong_category']
-        belong_git_base = receive_data['belong_git_base']
-        belong_svn_base = receive_data['belong_svn_base']
+
 
         input_list_need = [interface_name,interface_type,interface_url,belong_subsys] #必填项列表
         input_field_list = ",".join(input_field_list)#列表转换为字符串
@@ -249,8 +279,7 @@ def interface_add(request,**show):
         input_demo_list = ",".join(input_demo_list)
 
         input_dict = {"interface_name":interface_name,"interface_type":interface_type,"input_field_list":input_field_list,
-                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_subsys":belong_subsys,"belong_git_base":belong_git_base,
-                      "belong_svn_base":belong_svn_base,"interface_mock":interface_mock}
+                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_subsys":belong_subsys,"interface_mock":interface_mock}
 
         try:
             for i in input_list_need:
@@ -281,9 +310,11 @@ def interface_add(request,**show):
         html = "interface_add.html"
 
         back_dict = show["interface_info"]
+        sub_sys_list = show["sub_sys_list"]
         #该领域下的接口分类
 
-        return render(request, html, {'show': show, "back_dict": back_dict})
+        return render(request, html, {'show': show, "back_dict": back_dict,"sub_sys_list":sub_sys_list})
+
 
 @check_login
 def interface_detail(request,jiekouId,**show):
@@ -304,9 +335,12 @@ def interface_detail(request,jiekouId,**show):
             html = 'interface_detail.html'
             back_dict = show["interface_info"]
 
+
             return render(request,html,{"r":r,"r_dict_return":r_dict_return,"show":show,"back_dict":back_dict})
     except:
         return redirect("/")
+
+
 
 @check_login
 def interface_depot(request):
@@ -351,27 +385,30 @@ def edit_domain(request,**show):
 
         return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
-    @check_login
-    @csrf_exempt
-    def edit_domain(request, **show):
-        if request.method == "POST":
-            receive_data = json.loads(request.body.decode())  # 将body从byte类型转码后用json的loads函数将json格式转为字典
 
-            domain_name = receive_data['domain_name']
-            domain_brief = receive_data['domain_brief']
 
-            try:
-                if Domain_Info.objects.filter(domain_name=domain_name, domain_brief=domain_brief).exists():
-                    raise Exception
-            except Exception:
+@csrf_exempt
+def edit_subsys(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
 
-                resp = {'code': '000001', 'msg': '修改失败，领域名已存在或信息无变动！'}
-            else:
-                to_update = Domain_Info.objects.filter(id=show["domain_id"])
-                to_update.update(domain_name=domain_name, domain_brief=domain_brief)
-                resp = {'code': '000000', 'msg': '领域信息修改成功！'}
+        sub_sys_id = receive_data['sub_sys_id']
+        sub_sys_name = receive_data['sub_sys_name_edit']
+        svn_address = receive_data['svn_address_edit']
+        git_address = receive_data['git_address_edit']
 
-            return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+        try:
+            if Sub_Sys_Info.objects.filter(sub_sys_name = sub_sys_name,svn_address=svn_address,git_address=git_address).exists():
+                raise Exception
+        except Exception:
+
+            resp={'code':'000001','msg':'修改失败，子系统已存在或信息无变动！'}
+        else:
+            to_update = Sub_Sys_Info.objects.filter(id = sub_sys_id)
+            to_update.update(sub_sys_name=sub_sys_name,svn_address=svn_address,git_address=git_address)
+            resp = {'code': '000000', 'msg': '子系统信息修改成功！'}
+
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
 
 
@@ -397,6 +434,8 @@ def edit_category(request):
         return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
 
+
+
 @csrf_exempt
 def delete_category(request):
     if request.method == "POST":
@@ -408,6 +447,21 @@ def delete_category(request):
         resp = {'code': '000000', 'msg': '该类别已删除，类别下的接口转移到未分类！'}
 
         return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
+
+
+@csrf_exempt
+def delete_subsys(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        sub_sys_id = receive_data['sub_sys_id']
+        Sub_Sys_Info.objects.filter(id = sub_sys_id).delete()
+
+        resp = {'code': '000000', 'msg': '该子系统已删除!'}
+
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+
 
 @csrf_exempt
 def webtest_go(request):

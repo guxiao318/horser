@@ -175,6 +175,41 @@ $.ajaxSetup({
 	}
 
 
+	function subsys_add() {
+		var sub_sys_name = $("#sub_sys_name").val()
+		var svn_address = $("#svn_address").val()
+		var git_address = $("#git_address").val()
+
+
+		$.ajax({
+
+			type: "post",
+			url: "/subsys_add/",
+			data: JSON.stringify({"sub_sys_name": sub_sys_name,"svn_address": svn_address,"git_address": git_address}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				} else {
+					alert(resp.msg);
+				}
+
+			},
+
+			error: function () {
+
+				alert("出错了");
+			}
+
+
+		});
+	}
+
+
 	function horser_login() {
 		var user_name = $("#user_name").val()
 		var password = $("#password").val()
@@ -254,17 +289,19 @@ $.ajaxSetup({
 	}
 
 
+function edit_subsys(obj) {
 
+		var tr = $(obj).parent().parent()
+		var sub_sys_id = tr.children("td#sub_sys_id").text()
+		var sub_sys_name_edit = tr.children("td#sub_sys_name_edit").find("input").val()
+		var svn_address_edit = tr.children("td#svn_address_edit").find("input").val()
+		var git_address_edit = tr.children("td#git_address_edit").find("input").val()
 
-function edit_domain() {
-
-		var domain_name = $("#domain_name_edit").val()
-		var domain_brief = $("#domain_brief_edit").val()
 
 		$.ajax({
 			type: "post",
-			url: "/edit_domain/",
-			data: JSON.stringify({"domain_name": domain_name,"domain_brief":domain_brief}),
+			url: "/edit_subsys/",
+			data: JSON.stringify({"sub_sys_id":sub_sys_id,"sub_sys_name_edit": sub_sys_name_edit,"svn_address_edit":svn_address_edit,"git_address_edit":git_address_edit}),
 			cache: false,
 			async: false,
 			dataType: "json",
@@ -283,6 +320,12 @@ function edit_domain() {
 		});
 
 }
+
+
+
+
+
+
 
 
 function edit_category(obj) {
@@ -344,3 +387,31 @@ function delete_category(obj) {
 
 }
 
+function delete_subsys(obj) {
+
+    	var tr = $(obj).parent().parent()
+		var sub_sys_id = tr.children("td#sub_sys_id").text()
+
+
+		$.ajax({
+			type: "post",
+			url: "/delete_subsys/",
+			data: JSON.stringify({"sub_sys_id": sub_sys_id}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}

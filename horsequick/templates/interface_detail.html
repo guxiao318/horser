@@ -129,7 +129,7 @@
 					<div class="tab-pane" id="interface_detail_edit">
 
                         <div class="form-inline">
-                            <label class="mylabel" for="interface_name"><span style="color: red">*</span> 接口名：</label><input id="interface_name" name="interface_name" placeholder="输入接口名（必填）" class="form-control" style="width: 85%">
+                            <label class="mylabel" for="interface_name"><span style="color: red">*</span> 接口名：</label><input id="interface_name" name="interface_name" placeholder="输入接口名（必填）" class="form-control" style="width: 85%" value="{{ r.interface_name}}">
                         </div><br>
 
                         <div class="form-inline">
@@ -142,7 +142,7 @@
                         </div><br>
 
                         <div class="form-inline">
-                            <label class="mylabel"><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" ><option>test001</option><option>test002</option></select>
+                            <label class="mylabel"><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" >{% for i in show.sub_sys_list %}<option>{{ i }}</option>{% endfor %}</select>
                         </div><br>
 
 
@@ -151,15 +151,6 @@
                             <label class="mylabel" for="belong_group">所属分类：</label><select id="belong_group" name="belong_group" placeholder="选择分类" class="form-control" style="width: 85%" ><option></option><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
                         </div><br>
 
-
-
-                        <div class="form-inline">
-                            <label class="mylabel">所属SVN库：</label><select id="belong_svn_base" name="belong_svn_base" placeholder="选择所属SVN库" class="form-control" style="width: 85%" ><option></option><option></option></select>
-                        </div><br>
-
-                        <div class="form-inline">
-                            <label class="mylabel">所属GIT库：</label><select id="belong_git_base" name="belong_git_base" placeholder="选择所属GIT库" class="form-control" style="width: 85%" ><option></option><option></option></select>
-                        </div><br>
 
                         <div class="form-inline">
                             <label class="mylabel">mock：</label><input type="text" id="interface_mock" name="interface_mock" placeholder="mock" class="form-control" style="width: 85%" >

@@ -29,7 +29,7 @@
                 </div><br>
 
                 <div class="form-inline">
-                    <label class="mylabel"><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" ><option>test001</option><option>test002</option></select>
+                    <label class="mylabel"><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" >{% for i in show.sub_sys_list %}<option>{{i }}</option>{% endfor %}</select>
                 </div><br>
 
 
@@ -38,15 +38,6 @@
                     <label class="mylabel" for="belong_category">所属分类：</label><select id="belong_category" name="belong_category" placeholder="选择分类" class="form-control" style="width: 85%" >{% for i in show.category_list %}<option>{{i }}</option>{% endfor %}</select>
                 </div><br>
 
-
-
-                <div class="form-inline">
-                    <label class="mylabel">所属SVN库：</label><select id="belong_svn_base" name="belong_svn_base" placeholder="选择所属SVN库" class="form-control" style="width: 85%" ><option></option><option></option></select>
-                </div><br>
-
-                <div class="form-inline">
-                    <label class="mylabel">所属GIT库：</label><select id="belong_git_base" name="belong_git_base" placeholder="选择所属GIT库" class="form-control" style="width: 85%" ><option></option><option></option></select>
-                </div><br>
 
                 <div class="form-inline">
                     <label class="mylabel">mock：</label><input type="text" id="interface_mock" name="interface_mock" placeholder="mock" class="form-control" style="width: 85%" >
