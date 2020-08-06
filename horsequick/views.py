@@ -278,31 +278,48 @@ def interface_add(request,**show):
         input_need_list = ",".join(input_need_list)
         input_demo_list = ",".join(input_demo_list)
 
-        input_dict = {"interface_name":interface_name,"interface_type":interface_type,"input_field_list":input_field_list,
-                      "input_need_list":input_need_list,"input_demo_list":input_demo_list,"interface_url":interface_url,"belong_subsys":belong_subsys,"interface_mock":interface_mock}
 
-        try:
-            for i in input_list_need:
-                if i.strip() == '':
-                    raise Exception
+        if belong_subsys ==None:#先检验有没有子系统
+            resp = {'code': '000003', 'msg': '该领域下尚未添加子系统，请先在领域管理中添加子系统'}
+            return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
 
-        except Exception:
-            resp = {'code':'000001','msg':'必填项不能为空'}
 
-        else:
-            if Interface_Info.objects.filter(interface_name=interface_name,belong_subsys=belong_subsys).exists():#检查接口是否已存在
-                resp = {'code': '000002', 'msg': '添加失败，该子系统下接口已存在'}
-            else:#子系统下接口不存在则添加
-                created_time = datetime.now()
-                input_dict["created_time"] = created_time
-                input_dict["belong_domain_id"] = show["domain_id"] #添加的归属领域默认为当前领域
-                input_dict["created_person"] = show["user_name"] #添加的创建人为当前登录用户
-                input_dict["belong_category_id"] = Category_Info.objects.get(category_name=belong_category).id
-                Interface_Info.objects.create(**input_dict)
+        else:#子系统有数据
+            belong_subsys_id = Sub_Sys_Info.objects.get(sub_sys_name=belong_subsys).id #获取子系统id
+            input_dict = {"interface_name": interface_name, "interface_type": interface_type,
+                          "input_field_list": input_field_list,
+                          "input_need_list": input_need_list, "input_demo_list": input_demo_list,
+                          "interface_url": interface_url, "belong_subsys_id": belong_subsys_id,
+                          "interface_mock": interface_mock}
 
-                resp = {'code': '000000', 'msg': '添加成功'}
 
-        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+            try:#检验必填项是否都填了
+                for i in input_list_need:
+                    if i.strip() == '':
+                        raise Exception
+
+            except Exception:
+                resp = {'code':'000001','msg':'必填项不能为空'}
+
+            else:#必填项都填了
+
+                if Interface_Info.objects.filter(interface_name=interface_name,belong_subsys_id=belong_subsys_id).exists():#检查接口是否已存在
+                    resp = {'code': '000002', 'msg': '添加失败，该子系统下接口已存在'}
+
+                else:#子系统下接口不存在则添加
+                    created_time = datetime.now()
+                    input_dict["created_time"] = created_time
+                    input_dict["belong_domain_id"] = show["domain_id"] #添加的归属领域默认为当前领域
+                    input_dict["created_person"] = show["user_name"] #添加的创建人为当前登录用户
+                    if belong_category == "":
+                        input_dict["belong_category_id"] = None
+                    else:
+                        input_dict["belong_category_id"] = Category_Info.objects.get(category_name=belong_category).id
+
+                    Interface_Info.objects.create(**input_dict)
+                    resp = {'code': '000000', 'msg': '添加成功'}
+
+            return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
 
 
@@ -311,9 +328,10 @@ def interface_add(request,**show):
 
         back_dict = show["interface_info"]
         sub_sys_list = show["sub_sys_list"]
+        category_info = Category_Info.objects.filter(belong_domain=show["domain_id"])
         #该领域下的接口分类
 
-        return render(request, html, {'show': show, "back_dict": back_dict,"sub_sys_list":sub_sys_list})
+        return render(request, html, {'show': show, "back_dict": back_dict,"sub_sys_list":sub_sys_list,"category_info":category_info})
 
 
 @check_login

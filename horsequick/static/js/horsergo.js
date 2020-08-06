@@ -47,21 +47,27 @@ $.ajaxSetup({
 			success:function(resp){
 				if(resp.code ==="000000"){
 					alert(resp.msg);
+					window.location.reload()
 				}
 				
 				else if(resp.code==="000001"){
 					alert(resp.msg);
 				}
-				
+
+				else if(resp.code==="000002"){
+					alert(resp.msg);
+
+				}
 				else{
 					alert(resp.msg);
 				}
-				
+
 			},
 			
 			error: function(){
 				
 				alert("出错了");
+				window.location.reload()
 			}
 		});	
 
@@ -254,12 +260,12 @@ $.ajaxSetup({
     	html = '<div class="form-inline">' +
 			' <input id="input_field" name="interface_name" placeholder="参数名称" class="form-control params_input">' +
 			'<select id="interface_name" name="interface_name"  class="form-control params_need"><option>必需</option><option>非必需</option></select>' +
-			'<textarea class="form-control params_demo" style="height:34px;width: 55%" placeholder="参数实例"></textarea>' +'<button>删除</button>'+
+			'<textarea class="form-control params_demo" style="height:34px;width: 55%" placeholder="参数实例"></textarea>' +'&nbsp;'+'<button class="btn btn-warning btn-sm" onclick="delete_input_fields(this)" >删除</button>'+
 
 
 			'</div>'
 
-		obj.insertAdjacentHTML("beforeBegin", html)
+		$("#input_field_set").append(html)
 
 
 	}
@@ -361,31 +367,12 @@ function edit_category(obj) {
 function delete_category(obj) {
 
     	var tr = $(obj).parent().parent()
-		var category_id = tr.children("td#category_id").text()
 
 
-		$.ajax({
-			type: "post",
-			url: "/delete_category/",
-			data: JSON.stringify({"category_id": category_id}),
-			cache: false,
-			async: false,
-			dataType: "json",
-			success: function (resp) {
-				if (resp.code === "000000") {
-					alert(resp.msg);
-					window.location.reload()
-				} else if (resp.code === "000001") {
-					alert(resp.msg);
-				}
 
-			},
-			error: function () {
-				alert("出错了");
-			}
-		});
 
 }
+
 
 function delete_subsys(obj) {
 
@@ -413,5 +400,16 @@ function delete_subsys(obj) {
 				alert("出错了");
 			}
 		});
+
+}
+
+
+
+function delete_input_fields(obj) {
+
+    	$(obj).parent().remove()
+
+
+
 
 }

@@ -35,7 +35,7 @@
 
 
                 <div class="form-inline">
-                    <label class="mylabel" for="belong_category">所属分类：</label><select id="belong_category" name="belong_category" placeholder="选择分类" class="form-control" style="width: 85%" >{% for i in show.category_list %}<option>{{i }}</option>{% endfor %}</select>
+                    <label class="mylabel" for="belong_category">所属分类：</label><select id="belong_category" name="belong_category" placeholder="选择分类" class="form-control" style="width: 85%" ><option></option>{% for i in category_info %}<option>{{i.category_name }}</option>{% endfor %}</select>
                 </div><br>
 
 
@@ -46,14 +46,13 @@
         </div>
 
         <div class="input-group"><span class="glyphicon glyphicon-pencil"></span><span style="font-size:130%">请求参数</span></div><br>
-        <div class="jumbotron" style="background-color: lavender">
+        <div class="jumbotron" id="input_field_set" style="background-color: lavender">
 
-            <button class="btn btn-primary" id="add_input_field" onclick="add_input_field(this)">
-            添加入参</button><br>
-
-        <button type="button" class="btn btn-default" id="interface_add" style="float: right" onclick="interface_add()">提交</button>
+            <button class="btn btn-success" id="add_input_field" onclick="add_input_field(this)">
+            添加入参</button><br><br>
 
         </div>
+        <button type="button" class="btn btn-info" id="interface_add" style="float: right" onclick="interface_add()">提交</button>
 
 
 
