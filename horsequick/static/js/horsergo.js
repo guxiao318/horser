@@ -319,6 +319,7 @@ function edit_subsys(obj) {
 					alert(resp.msg);
 				}
 
+
 			},
 			error: function () {
 				alert("出错了");
@@ -410,6 +411,95 @@ function delete_input_fields(obj) {
     	$(obj).parent().remove()
 
 
+}
 
+
+function interface_edit_show() {
+
+
+
+    	var interface_name = $("#interface_name").text(); //取值
+		var interface_url = $("#interface_url").text();
+		var interface_type = $("#interface_type").text();
+		var interface_subsys = $("#interface_subsys").text();
+		var interface_category = $("#interface_category").text();
+		var interface_mock = $("#interface_mock").attr("href");
+
+		$("#interface_name_edit").val(interface_name);//赋值
+		$("#interface_url_edit").val(interface_url);
+		$("#interface_mock_edit").val(interface_mock);
+		$("#interface_type_edit").val(interface_type);
+		$("#interface_subsys_edit").val(interface_subsys);
+		$("#interface_category_edit").val(interface_category);
+
+
+
+
+    	$("#modal_interface_basic").modal("show")
+
+
+}
+
+
+function parms_edit_show(obj) {
+
+    	$("#modal_interface_parms").modal("show")
+
+
+}
+
+
+function parms_delete_show(obj) {
+
+    	$("#modal_interface_delete_parms").modal("show")
+
+
+}
+
+
+function parms_add_show() {
+
+    	$("#modal_interface_add_parms").modal("show")
+
+
+}
+
+
+
+function interface_edit() {
+
+		var interface_id = $("#interface_id").text()
+    	var interface_name = $("#interface_name_edit").val()
+		var interface_url = $("#interface_url_edit").val()
+		var interface_mock = $("#interface_mock_edit").val()
+		var interface_type = $("#interface_type_edit").val()
+		var interface_subsys = $("#interface_subsys_edit").val()
+		var interface_category = $("#interface_category_edit").val()
+
+
+		$.ajax({
+			type: "post",
+			url: "/interface_edit/",
+			data: JSON.stringify({"interface_name": interface_name,"interface_url": interface_url,
+				"interface_mock": interface_mock,"interface_type":interface_type,
+				"interface_subsys":interface_subsys,"interface_category":interface_category,"interface_id":interface_id}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				}else if (resp.code === "000002") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
 
 }

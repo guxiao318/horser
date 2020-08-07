@@ -76,6 +76,7 @@ class Interface_Info(models.Model):
     belong_domain = models.ForeignKey(Domain_Info, on_delete=models.SET_DEFAULT, verbose_name="所属领域",default="1")
     belong_category = models.ForeignKey(Category_Info, on_delete=models.SET_NULL, verbose_name="所属类别",null=True)
     created_person = models.CharField(max_length=30,verbose_name="创建人")
+    updated_person = models.CharField(max_length=30, verbose_name="更新人",null=True)
     created_time = models.DateTimeField(verbose_name="创建时间")
     updated_time = models.DateTimeField(verbose_name="更新时间",null=True)
 

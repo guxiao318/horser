@@ -7,46 +7,166 @@
     <ul class="breadcrumb">
         <li><a href="/">horser</a></li>
         <li><a href="/interface_depot/">接口仓库</a></li>
-        <li class="active">{{ r.interface_name }}</li>
+        <li class="active">{{ interface_objects.interface_name }}</li>
     </ul>
 
     {% endblock %}
     {% block content %}
         {% csrf_token %}
-        <div class="tabbable" id="interface_detail_switch">
-				<ul class="nav nav-tabs">
-					<li class="active">
-						 <a href="#interface_detail_preview" data-toggle="tab">预览</a>
-					</li>
-					<li>
-						 <a href="#interface_detail_edit" data-toggle="tab">编辑</a>
-					</li>
-				</ul><br>
+
+        <div class="modal fade" id="modal_interface_basic" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            修改基本信息
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group"><span class="input-group-addon">接口名称<span style="color: red">*</span> </span><input type="text" id="interface_name_edit" class="form-control" ></div><br>
+                        <div class="input-group"><span class="input-group-addon">接口类型<span style="color: red">*</span> </span><select id="interface_type_edit" class="form-control" ><option>GET</option><option>POST</option>
+                        <option>PUT</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option><option>PATCH</option></select></div><br>
+
+                        <div class="input-group"><span class="input-group-addon">接口URL<span style="color: red">*</span> </span><input type="text" id="interface_url_edit" class="form-control" ></div><br>
+                        <div class="input-group"><span class="input-group-addon">所属子系统</span><select  id="interface_subsys_edit" class="form-control" ><option>暂未绑定</option>{% for i in show.sub_sys_list %}<option>{{i }}</option>{% endfor %}</select></div><br>
+                        <div class="input-group"><span class="input-group-addon">所属分类</span><select id="interface_category_edit" class="form-control" ><option>未分类</option>{% for i in category_info %}<option>{{i.category_name }}</option>{% endfor %}</select></div><br>
+                        <div class="input-group"><span class="input-group-addon">Mock</span><textarea id="interface_mock_edit" class="form-control" style="height: 200px" ></textarea></div><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="interface_edit()">
+                            提交更改
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <div class="modal fade" id="modal_interface_parms" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            参数信息修改
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group"><span class="input-group-addon">参数名称<span style="color: red">*</span> </span><input type="text" id="parms_name_edit" class="form-control" ></div><br>
+                        <div class="input-group"><span class="input-group-addon">是否必需</span><select id="parms_need_edit" class="form-control"><option>必需</option><option>非必需</option></select></div><br>
+                        <div class="input-group"><span class="input-group-addon">示例</span><textarea id="parms_demo_edit" class="form-control" ></textarea></div><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary">
+                            提交更改
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <div class="modal fade" id="modal_interface_delete_parms" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            参数删除
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>确定删除此项参数么？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary">
+                            确定
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
 
 
-				<div class="tab-content">
-					<div class="tab-pane active" id="interface_detail_preview">
-						<div class="row">
-                            <blockquote>
+        <div class="modal fade" id="modal_interface_add_parms" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            增加入参
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                       <div class="modal-body">
+                        <div class="input-group"><span class="input-group-addon">参数名称<span style="color: red">*</span> </span><input type="text" id="parms_name_add" class="form-control" ></div><br>
+                        <div class="input-group"><span class="input-group-addon">是否必需</span><select id="parms_need_add" class="form-control"><option>必需</option><option>非必需</option></select></div><br>
+                        <div class="input-group"><span class="input-group-addon">示例</span><textarea id="parms_demo_add" class="form-control" ></textarea></div><br>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                        <button type="button" class="btn btn-primary">
+                            确定
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+                        <blockquote>
                                 <p>基本信息</p>
-                            </blockquote>
+                        </blockquote>
+
+                        <div class="row">
+
+                            <div class="col-md-offset-1">
+                                <ul class="list-inline ">
+                                    <li class="col-md-2 col-lg-2">
+                                        <label>接口ID：</label>
+                                    </li>
+                                    <li class="col-md-10 col-lg-10">
+                                        <p id="interface_id">{{ interface_objects.id}}</p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+						<div class="row">
+
                             <div class="col-md-offset-1">
                                 <ul class="list-inline ">
                                     <li class="col-md-2 col-lg-2">
                                         <label>接口名称：</label>
                                     </li>
                                     <li class="col-md-4 col-lg-4">
-                                        {{ r.interface_name}}
+                                        <p id="interface_name">{{ interface_objects.interface_name}}</p>
                                     </li>
-                                    <li class="col-md-2 col-lg-2">
-                                        <label>创建人：</label>
+                                    <li class="col-md-2 col-lg-2 ">
+                                        <label>接口类型：</label>
                                     </li>
-                                    <li class="col-md-4 col-lg-4">
-                                            {{ r.created_person}}
+                                    <li class="col-md-4 col-lg-4" >
+                                           <p id="interface_type">{{ interface_objects.interface_type}}</p>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
+
+
                         <div class="row">
                             <div class="col-md-offset-1">
                                 <ul class="list-inline">
@@ -54,7 +174,7 @@
                                             <label>接口URL：</label>
                                         </li>
                                         <li class="col-md-10 col-lg-10">
-                                            {{r.interface_url}}
+                                           <p id="interface_url" >{{interface_objects.interface_url}}</p>
                                         </li>
                                 </ul>
                             </div>
@@ -65,17 +185,43 @@
                                     <ul class="list-inline">
 
                                         <li class="col-md-2 col-lg-2">
+                                            <label>所属子系统：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4">
+                                            <p id="interface_subsys">{{category_and_subsys.belong_subsys}}</p>
+                                        </li>
+
+                                        <li class="col-md-2 col-lg-2">
+                                            <label>所属分类：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4">
+                                            <p id="interface_category">{{category_and_subsys.belong_category}}</p>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                             </div>
+
+
+
+                            <div class="row">
+                                <div class="col-md-offset-1">
+                                    <ul class="list-inline">
+
+                                        <li class="col-md-2 col-lg-2">
+                                            <label>创建人：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4" id="created_time">
+                                            {{interface_objects.created_person}}
+                                        </li>
+
+                                        <li class="col-md-2 col-lg-2">
                                             <label>创建时间：</label>
                                         </li>
-                                        <li class="col-md-4 col-lg-4">
-                                            {{r.created_time|date:"m-d H:i:s"|default_if_none:''}}
+                                        <li class="col-md-4 col-lg-4" id="created_time">
+                                            {{interface_objects.created_time|date:"m-d H:i:s"|default_if_none:''}}
                                         </li>
-                                        <li class="col-md-2 col-lg-2">
-                                            <label>更新时间：</label>
-                                        </li>
-                                        <li class="col-md-4 col-lg-4">
-                                            {{r.updated_time|date:"m-d H:i:s"|default_if_none:''}}
-                                        </li>
+
                                     </ul>
                                 </div>
                              </div>
@@ -83,10 +229,29 @@
                             <div class="row">
                                 <div class="col-md-offset-1">
                                     <ul class="list-inline">
+                                        <li class="col-md-2 col-lg-2" >
+                                            <label>更新人：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4" id="updated_time">
+                                            {{interface_objects.updated_person|default_if_none:''}}
+                                        </li>
+                                        <li class="col-md-2 col-lg-2" >
+                                            <label>更新时间：</label>
+                                        </li>
+                                        <li class="col-md-4 col-lg-4" id="updated_time">
+                                            {{interface_objects.updated_time|date:"m-d H:i:s"|default_if_none:''}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-offset-1">
+                                    <ul class="list-inline">
                                         <li class="col-md-2 col-lg-2">
                                                 <label>Mock：</label>
                                         </li>
-                                        <li class="col-md-10 col-lg-10"><a href="{{r.interface_mock|default_if_none:''}}" target="_blank">{{r.interface_mock|default_if_none:''}}</a>
+                                        <li class="col-md-10 col-lg-10"><a id="interface_mock" href="{{interface_objects.interface_mock|default_if_none:''}}" target="_blank">{{interface_objects.interface_mock|default_if_none:''}}</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -94,6 +259,7 @@
                             </div><br>
 
 
+                                <button type="button" class="btn btn-sm btn-info" style="float: right" onclick="interface_edit_show(this)">修改基本信息</button>
 
 
 
@@ -107,14 +273,17 @@
                                             <tr>
                                                 <th class="col-md-2 col-lg-2">参数名称</th>
                                                 <th class="col-md-2 col-lg-2">是否必需</th>
-                                                <th class="col-md-8 col-lg-8">示例</th>
+                                                <th class="col-md-6 col-lg-6">示例</th>
+                                                <th class="col-md-2 col-lg-2">操作</th>
 
                                             </tr>
-                                            {% for k,v in r_dict_return.items %}
+                                            {% for k,v in interface_info_now_dict.items %}
                                             <tr>
                                                 <td class="col-md-2 col-lg-2">{{v.parm}}</td>
                                                 <td class="col-md-2 col-lg-2">{{v.need}}</td>
-                                                <td class="col-md-8 col-lg-8">{{v.demo}}</td>
+                                                <td class="col-md-6 col-lg-6">{{v.demo}}</td>
+                                                <td class="col-md-2 col-lg-2"><button class="btn btn-info btn-sm" onclick="parms_edit_show(this)">修改</button>&nbsp;<button class="btn btn-danger btn-sm" onclick="parms_delete_show(this)">删除</button></td>
+
                                             </tr>
                                             {% endfor %}
 
@@ -123,67 +292,8 @@
                                         </thead>
 
                                     </table>
+                                    <button class="btn btn-success btn-sm" style="float: right" onclick="parms_add_show()">增加入参</button>
                                 </div>
-					</div>
-
-					<div class="tab-pane" id="interface_detail_edit">
-
-                        <div class="form-inline">
-                            <label class="mylabel" for="interface_name"><span style="color: red">*</span> 接口名：</label><input id="interface_name" name="interface_name" placeholder="输入接口名（必填）" class="form-control" style="width: 85%" value="{{ r.interface_name}}">
-                        </div><br>
-
-                        <div class="form-inline">
-
-                            <label class="mylabel" for="interface_url"><span style="color: red">*</span>接口路径：</label>
-                            <select id="interface_type" name="interface_type" placeholder="选择接口类型（必填）" class="form-control" ><option>GET</option><option>POST</option>
-                            <option>PUT</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option><option>PATCH</option></select>
-                            <input id="interface_url" name="interface_url" type="text" class="form-control" style="width: 70%">
-
-                        </div><br>
-
-                        <div class="form-inline">
-                            <label class="mylabel"><span style="color: red">*</span> 所属子系统：</label><select id="belong_subsys" name="belong_subsys" placeholder="选择所属子系统" class="form-control" style="width: 85%" >{% for i in show.sub_sys_list %}<option>{{ i }}</option>{% endfor %}</select>
-                        </div><br>
-
-
-
-                        <div class="form-inline">
-                            <label class="mylabel" for="belong_group">所属分类：</label><select id="belong_group" name="belong_group" placeholder="选择分类" class="form-control" style="width: 85%" ><option></option><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
-                        </div><br>
-
-
-                        <div class="form-inline">
-                            <label class="mylabel">mock：</label><input type="text" id="interface_mock" name="interface_mock" placeholder="mock" class="form-control" style="width: 85%" >
-                        </div><br>
-
-
-
-                        <blockquote>
-                                <p>入参设置</p>
-                            </blockquote>
-                        <div class="jumbotron" style="background-color: lavender">
-                            <div class="form-inline">
-			                    <input id="input_filed" name="interface_name" placeholder="参数名称" class="form-control params_input" value="hello">
-			                    <select id="interface_name" name="interface_name"  class="form-control params_need"><option>必需</option><option>非必需</option></select>
-			                    <textarea class="form-control params_demo" style="height:34px;width: 55%" placeholder="参数实例"></textarea><button>删除</button>
-                            </div>
-
-                            <button class="btn btn-primary" id="add_input_field" onclick="add_input_field(this)">
-                            添加入参</button><br>
-
-                            <button type="button" class="btn btn-default" id="interface_add" style="float: right" onclick="interface_add()">提交</button>
-
-                        </div>
-					</div>
-                </div>
-				</div>
-
-
-
-
-
-
-
 
 
     {% endblock %}

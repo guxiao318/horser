@@ -20,12 +20,11 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
             if login_status:
                 user_name = request.session.get('user_name',False)#从session中获取用户名
                 user_id = User_Info.objects.get(user_name=user_name).id
-                domain_id = request.session.get('domain_id',False)#从session中获取领域id名
+                domain_id = request.session.get('domain_id',False)#从session中获取领域id
                 domain_name = Domain_Info.objects.get(id=domain_id).domain_name
 
 
                 domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
-
                 domain_total_name_good =[]
                 for i in domain_total:
                     domain_total_name_good.append(i["belong_domain__domain_name"])
@@ -33,9 +32,9 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
                 show = {"user_name": user_name,"domain_total":domain_total_name_good,"domain_name":domain_name,"domain_id":domain_id}
 
 
-                category_list = Interface_Info.objects.filter(belong_domain=domain_id).values("belong_category__category_name").distinct()  # 领域对于下的分类名列表
+                category_list = Interface_Info.objects.filter(belong_domain_id=domain_id).values("belong_category__category_name").distinct()  # 领域对于下的分类名列表
                 category_list_good = []
-                back_dict = {}
+                interface_total_dict = {} #领域下的接口字典
 
                 for i in category_list:
                     category_list_good.append(i["belong_category__category_name"])  # 将分类转换为列表类型
@@ -48,7 +47,7 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
 
                     for n in interface_info_objects:
                         interface_info_list.append(n)
-                        back_dict[i] = interface_info_list  # 嵌套字典
+                        interface_total_dict[i] = interface_info_list  # 嵌套字典
 
                     interface_nums = interface_nums +interface_num_category
 
@@ -59,7 +58,7 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
 
 
                 show["interface_nums"] = interface_nums  # 该领域下接口数量
-                show["interface_info"] = back_dict
+                show["interface_info"] = interface_total_dict #该领域下的接口信息
                 show["category_list"] = category_list_good
                 show["sub_sys_list"] = sub_sys_list
 
@@ -116,9 +115,9 @@ def horser_index(request,**show):
 
 
         html = "horser_index.html"
-        back_dict = show["interface_info"]
+        interface_info_with_domain = show["interface_info"]
 
-        return render(request,html,{"show":show,"back_dict":back_dict})
+        return render(request,html,{"show":show,"interface_info_with_domain":interface_info_with_domain})
 
 
 @check_login
@@ -126,9 +125,9 @@ def interface_webtest(request,**show):
 
     if request.method == "GET":
             html = 'interface_webtest.html'
-            back_dict = show["interface_info"]
+            interface_info_with_domain = show["interface_info"]
 
-            return render(request, html,{"show": show,"back_dict":back_dict})
+            return render(request, html,{"show": show,"interface_info_with_domain":interface_info_with_domain})
 
 
 
@@ -152,11 +151,11 @@ def interface_webtest_detail(request,jiekouId,**show):
                     r_dict_return[i] = {"parm": p, "need": n, "demo": d, "num": i}
 
                 html = 'interface_webtest_detail.html'
-                back_dict = show["interface_info"]
+                interface_info_with_domain = show["interface_info"]
                 interface_name_dict["interface_name"] = r.interface_name
 
                 return render(request, html,
-                              {"r_dict_return": r_dict_return, "show": show, "back_dict": back_dict,"interface_name_dict":interface_name_dict})
+                              {"r_dict_return": r_dict_return, "show": show, "interface_info_with_domain": interface_info_with_domain,"interface_name_dict":interface_name_dict})
         except:
             return redirect("/")
 
@@ -165,22 +164,22 @@ def interface_webtest_detail(request,jiekouId,**show):
 def horser_help(request,**show):
     if request.method == "GET":
         html = "horser_help.html"
-        back_dict = show["interface_info"]
+        interface_info_with_domain = show["interface_info"]
 
 
-        return render(request,html,{'show':show,"back_dict":back_dict})
+        return render(request,html,{'show':show,"interface_info_with_domain":interface_info_with_domain})
 
 @check_login
 def domain_manage(request,**show):
     if request.method == "GET":
         html = "domain_manage.html"
 
-        back_dict = show["interface_info"]
+        interface_info_with_domain = show["interface_info"]
         domain_info = Domain_Info.objects.get(id=show["domain_id"])
         category_info = Category_Info.objects.filter(belong_domain=show["domain_id"])
         subsys_info = Sub_Sys_Info.objects.filter(belong_domain=show["domain_id"])
 
-        return render(request,html,{"show":show,"back_dict":back_dict,"domain_info":domain_info,"category_info":category_info,"subsys_info":subsys_info})
+        return render(request,html,{"show":show,"interface_info_with_domain":interface_info_with_domain,"domain_info":domain_info,"category_info":category_info,"subsys_info":subsys_info})
 
 
 @csrf_exempt
@@ -326,35 +325,58 @@ def interface_add(request,**show):
     else:
         html = "interface_add.html"
 
-        back_dict = show["interface_info"]
+        interface_info_with_domain = show["interface_info"]
         sub_sys_list = show["sub_sys_list"]
         category_info = Category_Info.objects.filter(belong_domain=show["domain_id"])
         #该领域下的接口分类
 
-        return render(request, html, {'show': show, "back_dict": back_dict,"sub_sys_list":sub_sys_list,"category_info":category_info})
+        return render(request, html, {'show': show, "interface_info_with_domain": interface_info_with_domain,"sub_sys_list":sub_sys_list,"category_info":category_info})
 
 
 @check_login
+
 def interface_detail(request,jiekouId,**show):
 
     try:
-        r = Interface_Info.objects.get(id=jiekouId)
+        interface_objects = Interface_Info.objects.get(id=jiekouId)
 
-        if r !=None:
-            r_dict = model_to_dict(r)
-            input_field_list = r_dict["input_field_list"].split(",")
-            input_need_list= r_dict["input_need_list"].split(",")
-            input_demo_list = r_dict["input_demo_list"].split(",")
+        if interface_objects !=None:
+            interface_info_now = model_to_dict(interface_objects) #当前的接口
+            input_field_list = interface_info_now["input_field_list"].split(",")
+            input_need_list= interface_info_now["input_need_list"].split(",")
+            input_demo_list = interface_info_now["input_demo_list"].split(",")
             parm_id_list = range(len(input_field_list))
-            r_dict_return ={}
+            interface_info_now_dict ={}
             for p,n,d,i in zip(input_field_list,input_need_list,input_demo_list,parm_id_list):
-                r_dict_return[i] = {"parm":p,"need":n,"demo":d,"num":i}
+                interface_info_now_dict[i] = {"parm":p,"need":n,"demo":d,"num":i}
 
             html = 'interface_detail.html'
-            back_dict = show["interface_info"]
 
+            interface_info_with_domain = show["interface_info"]
+            category_and_subsys ={}
+            category_id = interface_objects.belong_category_id
+            subsys_id = interface_objects.belong_subsys_id
 
-            return render(request,html,{"r":r,"r_dict_return":r_dict_return,"show":show,"back_dict":back_dict})
+            if category_id ==None and subsys_id ==None:
+                belong_category ="未分类"
+                belong_subsys = "暂未绑定"
+            elif category_id ==None and subsys_id !=None:
+                belong_category = "未分类"
+                belong_subsys = Sub_Sys_Info.objects.get(id=interface_objects.belong_subsys_id).sub_sys_name
+            elif category_id != None and subsys_id == None:
+                belong_subsys = "暂未绑定"
+                belong_category = Category_Info.objects.get(id=interface_objects.belong_category_id).category_name
+            else:
+                belong_category = Category_Info.objects.get(id=interface_objects.belong_category_id).category_name
+
+                belong_subsys = Sub_Sys_Info.objects.get(id=interface_objects.belong_subsys_id).sub_sys_name
+
+            category_and_subsys["belong_category"] =belong_category
+            category_and_subsys["belong_subsys"] = belong_subsys
+
+            category_info = Category_Info.objects.filter(belong_domain=show["domain_id"])
+
+            return render(request,html,{"interface_objects":interface_objects,"interface_info_now_dict":interface_info_now_dict,"show":show,"interface_info_with_domain":interface_info_with_domain,"category_and_subsys":category_and_subsys,"category_info":category_info})
     except:
         return redirect("/")
 
@@ -532,9 +554,70 @@ def webtest_go(request):
                 return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
 
 
+@csrf_exempt
+@check_login
+def interface_edit(request,**show):
+
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+
+        interface_id = receive_data['interface_id']
+        interface_name = receive_data['interface_name']
+        interface_type = receive_data['interface_type']
+        interface_url = receive_data['interface_url']
+        interface_mock = receive_data['interface_mock']
+        belong_subsys = receive_data['interface_subsys']
+        belong_category = receive_data['interface_category']
+
+        input_list_need = [interface_name,interface_type,interface_url] #必填项列表
+
+        try:#检验必填项是否都填了
+            for i in input_list_need:
+                if i.strip() == '':
+                    raise Exception
+
+        except Exception:
+            resp = {'code':'000001','msg':'必填项不能为空'} #有exception的地方要单独防return
+            return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+
+        else:#必填项都填了
+
+            if belong_subsys =="暂未绑定" and belong_category =="未分类":
+                belong_subsys_id =None
+                belong_category_id =None
+            elif belong_subsys =="暂未绑定" and belong_category !="未分类":
+                belong_subsys_id = None
+                belong_category_id = Category_Info.objects.get(category_name=belong_category).id  # 获取分类id
+            elif belong_subsys != "暂未绑定" and belong_category == "未分类":
+                belong_subsys_id = Sub_Sys_Info.objects.get(sub_sys_name=belong_subsys).id  # 获取子系统id
+                belong_category_id = None
+            else:
+                belong_subsys_id = Sub_Sys_Info.objects.get(sub_sys_name=belong_subsys).id #获取子系统id
+                belong_category_id = Category_Info.objects.get(category_name=belong_category).id #获取分类id
+
+            edit_dict = {"interface_name": interface_name, "interface_type": interface_type,
+                              "interface_url": interface_url, "belong_subsys_id": belong_subsys_id,
+                              "interface_mock": interface_mock,"belong_category_id":belong_category_id}
 
 
+            if Interface_Info.objects.filter(**edit_dict).exists():#检查接口是否无变化
+                resp = {'code': '000002', 'msg': '修改失败，基本信息无变化！'}
 
+
+            else:#有变化
+                compare_dict = {"interface_name": interface_name,"belong_subsys_id": belong_subsys_id}
+                if Interface_Info.objects.filter(**compare_dict).exists():#子系统和接口名联合主键检查
+                    resp = {'code': '000003', 'msg': '修改失败，该领域下已有同名接口！'}
+
+                else:
+                    updated_time = datetime.now()
+                    edit_dict["updated_time"] = updated_time
+                    edit_dict["updated_person"] = show["user_name"] #更新人为当前登录用户
+                    to_update = Interface_Info.objects.filter(id=interface_id)
+                    to_update.update(**edit_dict)
+                    resp = {'code': '000000', 'msg': '基本信息更新成功'}
+
+            return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
 
 
