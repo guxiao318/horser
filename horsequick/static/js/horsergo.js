@@ -163,12 +163,13 @@ $.ajaxSetup({
 			success: function (resp) {
 				if (resp.code === "000000") {
 					alert(resp.msg);
+
 				} else if (resp.code === "000001") {
 					alert(resp.msg);
 				} else {
 					alert(resp.msg);
 				}
-
+				window.location.reload()
 			},
 
 			error: function () {
@@ -443,6 +444,18 @@ function interface_edit_show() {
 
 function parms_edit_show(obj) {
 
+		var tr = $(obj).parent().parent();
+		var parms_old_name = tr.children("td#parms_name").text();
+		var parms_name = tr.children("td#parms_name").text();
+		var parms_need = tr.children("td#parms_need").text();
+		var parms_demo = tr.children("td#parms_demo").text();
+
+		$("#parms_name_edit").val(parms_name);
+		$("#parms_need_edit").val(parms_need);
+		$("#parms_demo_edit").val(parms_demo);
+		$("#parms_old_name").val(parms_old_name);
+
+
     	$("#modal_interface_parms").modal("show")
 
 
@@ -450,6 +463,13 @@ function parms_edit_show(obj) {
 
 
 function parms_delete_show(obj) {
+
+
+    	var tr = $(obj).parent().parent();
+		var parms_delete_name = tr.children("td#parms_name").text();
+
+		$("#parms_delete_name").text(parms_delete_name);
+
 
     	$("#modal_interface_delete_parms").modal("show")
 
@@ -469,7 +489,8 @@ function parms_add_show() {
 function interface_edit() {
 
 		var interface_id = $("#interface_id").text()
-    	var interface_name = $("#interface_name_edit").val()
+    	var interface_new_name = $("#interface_name_edit").val()
+		var interface_old_name = $("#interface_name").text()
 		var interface_url = $("#interface_url_edit").val()
 		var interface_mock = $("#interface_mock_edit").val()
 		var interface_type = $("#interface_type_edit").val()
@@ -480,8 +501,8 @@ function interface_edit() {
 		$.ajax({
 			type: "post",
 			url: "/interface_edit/",
-			data: JSON.stringify({"interface_name": interface_name,"interface_url": interface_url,
-				"interface_mock": interface_mock,"interface_type":interface_type,
+			data: JSON.stringify({"interface_new_name": interface_new_name,"interface_url": interface_url,
+				"interface_mock": interface_mock,"interface_type":interface_type,"interface_old_name":interface_old_name,
 				"interface_subsys":interface_subsys,"interface_category":interface_category,"interface_id":interface_id}),
 			cache: false,
 			async: false,
@@ -493,6 +514,107 @@ function interface_edit() {
 				} else if (resp.code === "000001") {
 					alert(resp.msg);
 				}else if (resp.code === "000002") {
+					alert(resp.msg);
+				} else if (resp.code === "000003") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}
+
+
+
+function parms_edit() {
+
+
+		var interface_id = $("#interface_id").text()
+    	var parms_new_name = $("#parms_name_edit").val()
+		var parms_old_name = $("#parms_old_name").val()
+		var parms_need = $("#parms_need_edit").val()
+		var parms_demo = $("#parms_demo_edit").val()
+
+	$.ajax({
+			type: "post",
+			url: "/parms_edit/",
+			data: JSON.stringify({"parms_new_name": parms_new_name,"parms_need": parms_need,
+				"parms_demo": parms_demo,"interface_id":interface_id,"parms_old_name":parms_old_name}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				} else if (resp.code === "000001") {
+					alert(resp.msg);
+				}else if (resp.code === "000002") {
+					alert(resp.msg);
+				} else if (resp.code === "000003") {
+					alert(resp.msg);
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}
+
+function parms_delete() {
+
+
+		var interface_id = $("#interface_id").text()
+    	var parms_name = $("#parms_delete_name").text()
+
+
+	$.ajax({
+			type: "post",
+			url: "/parms_delete/",
+			data: JSON.stringify({"interface_id": interface_id,"parms_name": parms_name}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				}
+
+			},
+			error: function () {
+				alert("出错了");
+			}
+		});
+
+}
+
+
+function parms_add() {
+
+		var interface_id = $("#interface_id").text()
+    	var parms_name = $("#parms_name_add").val()
+		var parms_need = $("#parms_need_add").val()
+		var parms_demo = $("#parms_demo_add").val()
+
+	$.ajax({
+			type: "post",
+			url: "/parms_add/",
+			data: JSON.stringify({"interface_id": interface_id,"parms_name": parms_name,
+				"parms_need": parms_need,"parms_demo": parms_demo}),
+			cache: false,
+			async: false,
+			dataType: "json",
+			success: function (resp) {
+				if (resp.code === "000000") {
+					alert(resp.msg);
+					window.location.reload()
+				}else if (resp.code === "000001") {
 					alert(resp.msg);
 				}
 

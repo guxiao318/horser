@@ -19,7 +19,7 @@ from django.conf.urls import include,url
 from horsequick.views import horser_index,horser_help,interface_add,interface_detail,\
     interface_depot,domain_manage,domain_add,horser_login,select_domain,edit_domain,\
     edit_category,delete_category,category_add,interface_webtest_detail,interface_webtest,\
-    webtest_go,edit_subsys,subsys_add,delete_subsys,interface_edit
+    webtest_go,edit_subsys,subsys_add,delete_subsys,interface_edit,parms_edit,parms_delete,parms_add
 
 
 urlpatterns = [
@@ -43,6 +43,9 @@ urlpatterns = [
     url(r'^subsys_add/$', subsys_add, name='subsys_add'),
     url(r'^delete_subsys/$', delete_subsys, name='delete_subsys'),
     url(r'^interface_edit/$', interface_edit, name='interface_edit'),
+    url(r'^parms_edit/$', parms_edit, name='parms_edit'),
+    url(r'^parms_delete/$', parms_delete, name='parms_delete'),
+    url(r'^parms_add/$', parms_add, name='parms_add'),
     url(r'^interface_detail/(\w+)$', interface_detail, name='interface_detail'),
 
     ]

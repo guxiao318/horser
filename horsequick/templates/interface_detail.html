@@ -58,6 +58,7 @@
                         </h4>
                     </div>
                     <div class="modal-body">
+                        <input type="text" id="parms_old_name" class="form-control" style="display: none">
                         <div class="input-group"><span class="input-group-addon">参数名称<span style="color: red">*</span> </span><input type="text" id="parms_name_edit" class="form-control" ></div><br>
                         <div class="input-group"><span class="input-group-addon">是否必需</span><select id="parms_need_edit" class="form-control"><option>必需</option><option>非必需</option></select></div><br>
                         <div class="input-group"><span class="input-group-addon">示例</span><textarea id="parms_demo_edit" class="form-control" ></textarea></div><br>
@@ -65,7 +66,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭
                         </button>
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="parms_edit()">
                             提交更改
                         </button>
                     </div>
@@ -85,12 +86,14 @@
                         </h4>
                     </div>
                     <div class="modal-body">
-                        <p>确定删除此项参数么？</p>
+
+                        <span>确定删除参数<span id="parms_delete_name" style="background-color: yellow"></span>???</span>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭
                         </button>
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="parms_delete()">
                             确定
                         </button>
                     </div>
@@ -112,15 +115,18 @@
                     </div>
                     <div class="modal-body">
                        <div class="modal-body">
-                        <div class="input-group"><span class="input-group-addon">参数名称<span style="color: red">*</span> </span><input type="text" id="parms_name_add" class="form-control" ></div><br>
-                        <div class="input-group"><span class="input-group-addon">是否必需</span><select id="parms_need_add" class="form-control"><option>必需</option><option>非必需</option></select></div><br>
-                        <div class="input-group"><span class="input-group-addon">示例</span><textarea id="parms_demo_add" class="form-control" ></textarea></div><br>
+                        <div class="input-group"><span class="input-group-addon">参数名称<span style="color: red">*</span> </span><label
+                                for="parms_name_add"></label><input type="text" id="parms_name_add" class="form-control" ></div><br>
+                        <div class="input-group"><span class="input-group-addon">是否必需</span><label
+                                for="parms_need_add"></label><select id="parms_need_add" class="form-control"><option>必需</option><option>非必需</option></select></div><br>
+                        <div class="input-group"><span class="input-group-addon">示例</span><label
+                                for="parms_demo_add"></label><textarea id="parms_demo_add" class="form-control" ></textarea></div><br>
                     </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭
                         </button>
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" class="btn btn-primary" onclick="parms_add()">
                             确定
                         </button>
                     </div>
@@ -279,9 +285,9 @@
                                             </tr>
                                             {% for k,v in interface_info_now_dict.items %}
                                             <tr>
-                                                <td class="col-md-2 col-lg-2">{{v.parm}}</td>
-                                                <td class="col-md-2 col-lg-2">{{v.need}}</td>
-                                                <td class="col-md-6 col-lg-6">{{v.demo}}</td>
+                                                <td id="parms_name" class="col-md-2 col-lg-2">{{v.parm}}</td>
+                                                <td id="parms_need" class="col-md-2 col-lg-2">{{v.need}}</td>
+                                                <td id="parms_demo" class="col-md-6 col-lg-6">{{v.demo}}</td>
                                                 <td class="col-md-2 col-lg-2"><button class="btn btn-info btn-sm" onclick="parms_edit_show(this)">修改</button>&nbsp;<button class="btn btn-danger btn-sm" onclick="parms_delete_show(this)">删除</button></td>
 
                                             </tr>

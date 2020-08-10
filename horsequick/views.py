@@ -6,6 +6,7 @@ from .models import Interface_Info,Domain_Info,User_Info,User_Domain_Group_Relat
 from django.forms import model_to_dict
 from functools import wraps
 from collections import ChainMap
+from . import public_good
 
 
 # Create your views here.
@@ -23,8 +24,7 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
                 domain_id = request.session.get('domain_id',False)#从session中获取领域id
                 domain_name = Domain_Info.objects.get(id=domain_id).domain_name
 
-
-                domain_total = User_Domain_Group_Relation.objects.filter(user=user_id).values("belong_domain__domain_name")#用户属于的领域id
+                domain_total = User_Domain_Group_Relation.objects.filter(user_id=user_id).values("belong_domain__domain_name")#用户属于的领域id
                 domain_total_name_good =[]
                 for i in domain_total:
                     domain_total_name_good.append(i["belong_domain__domain_name"])
@@ -32,7 +32,7 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
                 show = {"user_name": user_name,"domain_total":domain_total_name_good,"domain_name":domain_name,"domain_id":domain_id}
 
 
-                category_list = Interface_Info.objects.filter(belong_domain_id=domain_id).values("belong_category__category_name").distinct()  # 领域对于下的分类名列表
+                category_list = Interface_Info.objects.filter(belong_domain_id=domain_id).values("belong_category__category_name").order_by("belong_category__category_name").distinct()  # 领域对于下的分类名列表
                 category_list_good = []
                 interface_total_dict = {} #领域下的接口字典
 
@@ -41,7 +41,7 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
 
 
                 for i in category_list_good:
-                    interface_info_objects = Interface_Info.objects.filter(belong_category__category_name=i).values("interface_name", "id")
+                    interface_info_objects = Interface_Info.objects.filter(belong_category__category_name=i,belong_domain_id= domain_id).values("interface_name", "id")
                     interface_num_category = len(interface_info_objects) #类别下的接口数量
                     interface_info_list = []
 
@@ -61,11 +61,7 @@ def check_login(func): #检查登录状态及和登录相关的初始化装饰�
                 show["interface_info"] = interface_total_dict #该领域下的接口信息
                 show["category_list"] = category_list_good
                 show["sub_sys_list"] = sub_sys_list
-
-
-
                 return func(request, *args, **show)
-
 
             else:
                 return redirect("/login/")
@@ -245,7 +241,7 @@ def category_add(request,**show):
         except Exception:
             resp = {'code':'000001','msg':'必填项不能为空'}
         else:
-            if Category_Info.objects.filter(category_name=category_name).exists():
+            if Category_Info.objects.filter(category_name=category_name,belong_domain_id=show["domain_id"]).exists():
                 resp = {'code': '000002', 'msg': '添加失败，该领域下已存在此类别！'}
             else:
                 Category_Info.objects.create(category_name=category_name,belong_domain_id=show["domain_id"])
@@ -562,14 +558,15 @@ def interface_edit(request,**show):
         receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
 
         interface_id = receive_data['interface_id']
-        interface_name = receive_data['interface_name']
+        interface_new_name = receive_data['interface_new_name']
+        interface_old_name = receive_data['interface_old_name']
         interface_type = receive_data['interface_type']
         interface_url = receive_data['interface_url']
         interface_mock = receive_data['interface_mock']
         belong_subsys = receive_data['interface_subsys']
         belong_category = receive_data['interface_category']
 
-        input_list_need = [interface_name,interface_type,interface_url] #必填项列表
+        input_list_need = [interface_new_name,interface_type,interface_url,interface_old_name] #必填项列表
 
         try:#检验必填项是否都填了
             for i in input_list_need:
@@ -577,8 +574,7 @@ def interface_edit(request,**show):
                     raise Exception
 
         except Exception:
-            resp = {'code':'000001','msg':'必填项不能为空'} #有exception的地方要单独防return
-            return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+            resp = {'code':'000001','msg':'必填项不能为空'}
 
         else:#必填项都填了
 
@@ -587,15 +583,15 @@ def interface_edit(request,**show):
                 belong_category_id =None
             elif belong_subsys =="暂未绑定" and belong_category !="未分类":
                 belong_subsys_id = None
-                belong_category_id = Category_Info.objects.get(category_name=belong_category).id  # 获取分类id
+                belong_category_id = Category_Info.objects.get(category_name=belong_category,belong_domain_id=show["domain_id"]).id  # 获取分类id
             elif belong_subsys != "暂未绑定" and belong_category == "未分类":
                 belong_subsys_id = Sub_Sys_Info.objects.get(sub_sys_name=belong_subsys).id  # 获取子系统id
                 belong_category_id = None
             else:
                 belong_subsys_id = Sub_Sys_Info.objects.get(sub_sys_name=belong_subsys).id #获取子系统id
-                belong_category_id = Category_Info.objects.get(category_name=belong_category).id #获取分类id
+                belong_category_id = Category_Info.objects.get(category_name=belong_category,belong_domain_id=show["domain_id"]).id #获取分类id
 
-            edit_dict = {"interface_name": interface_name, "interface_type": interface_type,
+            edit_dict = {"interface_name": interface_new_name, "interface_type": interface_type,
                               "interface_url": interface_url, "belong_subsys_id": belong_subsys_id,
                               "interface_mock": interface_mock,"belong_category_id":belong_category_id}
 
@@ -603,26 +599,81 @@ def interface_edit(request,**show):
             if Interface_Info.objects.filter(**edit_dict).exists():#检查接口是否无变化
                 resp = {'code': '000002', 'msg': '修改失败，基本信息无变化！'}
 
-
             else:#有变化
-                compare_dict = {"interface_name": interface_name,"belong_subsys_id": belong_subsys_id}
-                if Interface_Info.objects.filter(**compare_dict).exists():#子系统和接口名联合主键检查
-                    resp = {'code': '000003', 'msg': '修改失败，该领域下已有同名接口！'}
+                if interface_new_name != interface_old_name: #接口名有变化
+                    compare_dict = {"interface_name": interface_new_name,"belong_subsys_id": belong_subsys_id}
+                    if Interface_Info.objects.filter(**compare_dict).exists():#子系统和接口名联合主键检查是否该接口名已存在，不同子系统下允许有同名接口
+                        resp = {'code': '000003', 'msg': '修改失败，本领域下此子系统已有同名接口！'}
+                    else:
+                        resp = public_good.update_interface_info(now_person=show["user_name"],interface_id=interface_id,**edit_dict)#调用公共方法
 
-                else:
-                    updated_time = datetime.now()
-                    edit_dict["updated_time"] = updated_time
-                    edit_dict["updated_person"] = show["user_name"] #更新人为当前登录用户
-                    to_update = Interface_Info.objects.filter(id=interface_id)
-                    to_update.update(**edit_dict)
-                    resp = {'code': '000000', 'msg': '基本信息更新成功'}
+                else:#接口名没有变化则进行其他项内容的更新
+                    resp =public_good.update_interface_info(now_person=show["user_name"], interface_id=interface_id,**edit_dict)
 
-            return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
+        return HttpResponse(json.dumps(resp,ensure_ascii=False),content_type="application/json")
 
 
+@csrf_exempt
+def parms_edit(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+        interface_id = receive_data['interface_id']
+        parms_new_name = receive_data['parms_new_name']
+        parms_old_name = receive_data['parms_old_name']
+        parms_need = receive_data['parms_need']
+        parms_demo = receive_data['parms_demo']
+
+
+        input_list_need = [interface_id,parms_new_name,parms_old_name] #必填项列表
+
+        try:#检验必填项是否都填了
+            for i in input_list_need:
+                if i.strip() == '':
+                    raise Exception
+
+        except Exception:
+            resp = {'code':'000001','msg':'必填项不能为空'}
+
+        else:#必填项都填了
+            edit_parms_dict ={"interface_id":interface_id,"parms_new_name":parms_new_name,
+                              "parms_old_name":parms_old_name,"parms_need":parms_need,"parms_demo":parms_demo}
+
+            to_edit = public_good.parms_change(edit_parms_dict)
+            resp = to_edit.parms_edit()
+
+
+        return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+
+
+@csrf_exempt
+def parms_delete(request):
+    if request.method == "POST":
+        receive_data = json.loads(request.body.decode())#将body从byte类型转码后用json的loads函数将json格式转为字典
+        interface_id = receive_data['interface_id']
+        parms_name = receive_data['parms_name']
+
+        delete_parms_dict = {"interface_id": interface_id, "parms_name": parms_name}
+        to_delete = public_good.parms_change(delete_parms_dict)#调用公共类删除方法
+        resp = to_delete.parms_delete()
+
+        return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
 
 
 
+@csrf_exempt
+def parms_add(request):
 
+    receive_data = json.loads(request.body.decode())  # 将body从byte类型转码后用json的loads函数将json格式转为字典
+    interface_id = receive_data['interface_id']
+    parms_name = receive_data['parms_name']
+    parms_demo = receive_data['parms_demo']
+    parms_need = receive_data['parms_need']
 
+    if parms_name =="":
+        resp = {'code': '000001', 'msg': '必填项不能为空'}
+    else:
+        add_parms_dict = {"interface_id":interface_id,"parms_name":parms_name,"parms_demo":parms_demo,"parms_need":parms_need}
+        to_add = public_good.parms_change(add_parms_dict)#调用公共类添加方法
+        resp = to_add.parms_add()
 
+    return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
