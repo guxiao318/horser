@@ -309,7 +309,7 @@ def interface_add(request,**show):
                     if belong_category == "":
                         input_dict["belong_category_id"] = None
                     else:
-                        input_dict["belong_category_id"] = Category_Info.objects.get(category_name=belong_category).id
+                        input_dict["belong_category_id"] = Category_Info.objects.get(category_name=belong_category,belong_domain_id=show["domain_id"]).id
 
                     Interface_Info.objects.create(**input_dict)
                     resp = {'code': '000000', 'msg': '添加成功'}
@@ -677,3 +677,11 @@ def parms_add(request):
         resp = to_add.parms_add()
 
     return HttpResponse(json.dumps(resp, ensure_ascii=False), content_type="application/json")
+
+
+def login_out(request):
+    try:
+        request.session.clear()
+    except KeyError:
+        pass
+    return redirect("/login")
